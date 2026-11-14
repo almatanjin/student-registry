@@ -1,0 +1,200 @@
+// Data model for the Registry module.
+// See openspec/changes/build-registry-module/design.md (decision 3) and docs/database-schema.md.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STAFF
+  STUDENT
+}
+
+enum EnrolmentStatus {
+  ENROLLED
+  DEFERRED
+  WITHDRAWN
+  COMPLETED
+}
+
+enum ResultState {
+  PENDING
+  PUBLISHED
+  WITHHELD
+}
+
+/// A sign-in account. Email is stored lower-case and is unique across staff and students.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  student          Student?
+  recordedPayments Payment[]
+}
+
+model Student {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  /// Generated Student ID, such as SMS-2025-0001. Never changes.
+  studentNumber     String          @unique
+  fullName          String
+  dateOfBirth       DateTime        @db.Date
+  programmeId       String
+  /// Start year of the academic year: 2025 means 2025/26.
+  academicYearStart Int
+  status            EnrolmentStatus @default(ENROLLED)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  user          User                @relation(fields: [userId], references: [id])
+  programme     Programme           @relation(fields: [programmeId], references: [id])
+  instalments   StudentInstalment[]
+  payments      Payment[]
+  submissions   Submission[]
+  grades        Grade[]
+  moduleResults ModuleResult[]
+
+  @@index([programmeId])
+  @@index([status])
+}
+
+/// One row per academic start year; hands out Student ID sequence numbers atomically.
+model StudentNumberCounter {
+  year      Int @id
+  lastValue Int
+}
+
+model Programme {
+  id             String @id @default(cuid())
+  code           String @unique
+  name           String
+  /// Annual fee in minor units (pence).
+  annualFeeMinor Int
+
+  feePlan  FeePlanInstalment[]
+  students Student[]
+  modules  Module[]
+}
+
+/// One instalment of a programme's fee plan, dated by month and day within an academic year.
+model FeePlanInstalment {
+  id          String @id @default(cuid())
+  programmeId String
+  sequence    Int
+  amountMinor Int
+  dueMonth    Int
+  dueDay      Int
+
+  programme Programme @relation(fields: [programmeId], references: [id])
+
+  @@unique([programmeId, sequence])
+}
+
+/// A student's billed instalment, copied from the programme's plan when the student is billed.
+model StudentInstalment {
+  id          String   @id @default(cuid())
+  studentId   String
+  sequence    Int
+  amountMinor Int
+  dueDate     DateTime @db.Date
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, sequence])
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  studentId    String
+  amountMinor  Int
+  paidOn       DateTime @db.Date
+  reference    String   @unique
+  recordedById String
+  createdAt    DateTime @default(now())
+
+  student    Student @relation(fields: [studentId], references: [id])
+  recordedBy User    @relation(fields: [recordedById], references: [id])
+
+  @@index([studentId])
+}
+
+model Module {
+  id          String @id @default(cuid())
+  programmeId String
+  code        String @unique
+  title       String
+
+  programme     Programme      @relation(fields: [programmeId], references: [id])
+  assessments   Assessment[]
+  moduleResults ModuleResult[]
+
+  @@index([programmeId])
+}
+
+model Assessment {
+  id        String   @id @default(cuid())
+  moduleId  String
+  title     String
+  deadline  DateTime @db.Timestamptz(3)
+  isOpen    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  module      Module       @relation(fields: [moduleId], references: [id])
+  submissions Submission[]
+  grades      Grade[]
+
+  @@index([moduleId])
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  assessmentId String
+  studentId    String
+  /// Random key of the stored file; the original name is kept only here.
+  storageKey   String   @unique
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  submittedAt  DateTime @db.Timestamptz(3)
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  student    Student    @relation(fields: [studentId], references: [id])
+
+  @@unique([assessmentId, studentId])
+}
+
+model Grade {
+  id           String   @id @default(cuid())
+  assessmentId String
+  studentId    String
+  /// Whole number from 0 to 100.
+  value        Int
+  updatedAt    DateTime @updatedAt
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  student    Student    @relation(fields: [studentId], references: [id])
+
+  @@unique([assessmentId, studentId])
+}
+
+/// Release state of one student's results for one module. No row means PENDING.
+model ModuleResult {
+  id        String      @id @default(cuid())
+  studentId String
+  moduleId  String
+  state     ResultState @default(PENDING)
+  updatedAt DateTime    @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id])
+  module  Module  @relation(fields: [moduleId], references: [id])
+
+  @@unique([studentId, moduleId])
+}
