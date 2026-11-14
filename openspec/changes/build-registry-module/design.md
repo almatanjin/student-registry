@@ -156,7 +156,41 @@ Late submissions, overdue amounts, and enrolment statuses use consistent badges,
 - `prisma/schema.prisma` and the `prisma/migrations` folder are committed.
 - The seed (`prisma db seed`, run with `tsx`) creates 2 programmes with modules and fee plans, 2 staff accounts, at least 6 students across all four statuses, payments including an overdue and a fully paid student, assessments with on-time, late, and missing submissions (with small sample PDF files), and grades with Published, Pending, and Withheld modules.
   Seed dates are computed from the current date, so the overdue and late cases exist whenever the seed is run.
-- Tests follow the project TDD skill, with seams to be confirmed with the user before the first test: Vitest unit tests for `src/domain`, Vitest integration tests that call Route Handlers against the test database, and a few Playwright end-to-end tests of the main staff and student flows.
+- Tests follow the project TDD skill, with seams to be confirmed with the user before the first test: Vitest unit tests for `src/domain`, Vitest integration tests that call Route Handlers against the test database, and Playwright end-to-end tests of the staff and student flows (decision 13).
+
+Agreed test seams (approved by the user on 2026-11-13):
+
+| Seam | Public interface | Catches | Misses |
+|---|---|---|---|
+| Domain | Pure functions in `src/domain` | Rule and boundary mistakes (Student ID format, academic year, instalment dates, balances, classification, late check, publish rules), in milliseconds | Database, HTTP, and rendering |
+| API | Route Handler functions called in-process against the real test database; the signed-in user comes from one `getCurrentUser()` boundary that tests set | Validation, status codes, role and ownership checks, unique constraints, and concurrency rules | Cookie decoding and rendering |
+| Browser | Playwright against the production build and the seeded test database | Real sign-in, redirects, page states, uploads, and downloads | Exhaustive edge cases, which are too slow to enumerate here |
+
+Nothing internal is mocked; `getCurrentUser()` is the only value tests set, and Playwright covers the real session cookie behind it.
+
+### 13. End-to-end testing with Playwright
+
+Playwright tests drive the real app in a browser the way a staff member or a student would.
+A user-facing task is done only when its Playwright test passes, and each task group ends by running the whole suite.
+
+- Layout: tests live in `e2e/`, with one file per capability (`access-control.spec.ts`, `student-records.spec.ts`, `student-fees.spec.ts`, `assessment-submissions.spec.ts`, `student-results.spec.ts`) and `journey.spec.ts` for the full staff-and-student flow.
+  Test titles reuse the spec scenario names, so each scenario can be traced to its test.
+- Environment: the `webServer` setting in `playwright.config.ts` builds and starts the app on its own port against the test database, with `UPLOAD_DIR` set to a temporary folder.
+  A global setup resets, migrates, and seeds the test database, so every run starts from the same data.
+  The tests run against the production build because it matches what a reviewer runs and avoids the slow first-load compiles of the dev server.
+- Sessions: a setup project signs in once as a seeded staff account and once as a seeded student through the real sign-in page, and saves each session under `e2e/.auth/` (gitignored).
+  Other tests reuse the saved session for their role, and the access-control tests sign in through the page themselves.
+- Data: the suite runs in one worker, so tests never race on shared rows.
+  A test that changes data first creates its own record through the UI where the UI allows it.
+  Cases that depend on dates (overdue instalments, a deadline that has passed) come from the seed, which dates its data from the current day, so no clock is mocked.
+- Locators: tests find elements by role, label, and visible text, and rely on Playwright's auto-waiting assertions; they use no CSS or XPath selectors and no fixed waits.
+- Failures: retries are set to 0, so a flaky test fails and gets fixed instead of passing on a second try.
+  A trace and a screenshot are kept for each failed test, and `test-results/` and `playwright-report/` are gitignored.
+- Browser: Chromium only, with the UI review (task 8.2) taking screenshots at 1440 and 390 pixels wide.
+- Scripts: `npm run test:e2e` runs the suite, and the README documents it next to the unit and integration commands.
+
+- Alternative: Cypress. Playwright handles one saved session per role out of the box and is the end-to-end tool the Next.js documentation covers first.
+- Alternative: running tests in several workers with a database per worker. It is faster, but the extra setup is not worth it for a suite of this size.
 
 ## Risks / Trade-offs
 
@@ -165,6 +199,7 @@ Late submissions, overdue amounts, and enrolment statuses use consistent badges,
 - [The dashboard computes overdue balances in memory] → Fine for thousands of students; moving it into a SQL view is a contained change.
 - [Time-zone mistakes around due dates and deadlines] → Deadlines are stored as `timestamptz`, due dates as plain dates, and "today" always comes from one `APP_TIMEZONE` helper covered by unit tests.
 - [A failed file removal after resubmission leaves an orphaned file] → The database stays correct, and the orphan is logged; a clean-up job is out of scope.
+- [The Playwright suite adds minutes to each task group] → One browser, saved sign-in sessions, and a production build keep it short, and per-task runs can target a single spec file.
 - [No way to correct a wrong payment] → Accepted to stay within the brief; listed under Non-Goals and in the README.
 
 ## Migration Plan
