@@ -1,26 +1,70 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { Award, Banknote, CheckCircle2, ClockAlert, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { StatTile } from "@/components/stat-tile";
 import { StatusBadge } from "@/components/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
 import { requireStaffPage } from "@/server/auth/pages";
 import { money } from "@/server/config";
+import { getDashboardSummary } from "@/server/dashboard/service";
 import { listOverdueStudents } from "@/server/fees/overdue";
+import { STATUS_LABELS } from "@/domain/schemas/student";
 
 export const metadata: Metadata = { title: "Dashboard · Student Registry" };
 
 export default async function StaffDashboardPage() {
   await requireStaffPage();
   const overdue = await listOverdueStudents();
-  const totalOverdue = overdue.reduce((sum, entry) => sum + entry.overdueMinor, 0);
+  const summary = await getDashboardSummary(overdue);
+  const totalOverdue = summary.overdue.totalMinor;
+  const otherStatuses = summary.enrolled.others
+    .map((row) => `${row.count} ${STATUS_LABELS[row.status].toLowerCase()}`)
+    .join(", ");
 
   return (
     <>
       <PageHeader title="Registry dashboard" />
-      <Card>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatTile
+          label="Enrolled students"
+          value={String(summary.enrolled.count)}
+          detail={otherStatuses || "No other statuses"}
+          icon={Users}
+          colour="blue"
+          href="/staff/students?status=ENROLLED"
+        />
+        <StatTile
+          label="Overdue balances"
+          value={String(summary.overdue.count)}
+          detail={summary.overdue.count > 0 ? `${money(totalOverdue)} overdue` : "Everyone is up to date"}
+          icon={ClockAlert}
+          colour="yellow"
+          href="#overdue-balances"
+        />
+        <StatTile
+          label="Fees collected"
+          value={`${summary.fees.percent}%`}
+          detail={
+            summary.fees.billedMinor > 0
+              ? `${money(summary.fees.paidMinor)} of ${money(summary.fees.billedMinor)} billed`
+              : "No fees billed yet"
+          }
+          icon={Banknote}
+          colour="green"
+        />
+        <StatTile
+          label="Results to publish"
+          value={String(summary.resultsToPublish)}
+          detail="Complete, still pending"
+          icon={Award}
+          colour="purple"
+          href="/staff/results"
+        />
+      </div>
+      <Card id="overdue-balances" className="scroll-mt-20">
         <CardHeader>
           <CardTitle>Overdue balances</CardTitle>
           <CardDescription>
