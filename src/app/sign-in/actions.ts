@@ -2,7 +2,7 @@
 
 import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
-import { homeFor } from "@/domain/access";
+import { CHANGE_PASSWORD_PATH, homeFor } from "@/domain/access";
 import { verifyCredentials } from "@/server/auth/credentials";
 
 export type SignInState = { error?: string; email?: string };
@@ -14,12 +14,14 @@ export async function signInAction(_previous: SignInState, formData: FormData): 
   const email = String(formData.get("email") ?? "");
   const password = formData.get("password");
 
-  // Look the account up first so the redirect goes straight to the role's home page.
+  // Look the account up first so the redirect goes straight to the right page:
+  // the change-password page while a password set by staff is still in use, otherwise the role's home page.
   const user = await verifyCredentials(email, password);
   if (!user) return { error: INVALID, email };
+  const redirectTo = user.mustChangePassword ? CHANGE_PASSWORD_PATH : homeFor(user.role);
 
   try {
-    await signIn("credentials", { email, password, redirectTo: homeFor(user.role) });
+    await signIn("credentials", { email, password, redirectTo });
     return {};
   } catch (error) {
     if (error instanceof AuthError) return { error: INVALID, email };

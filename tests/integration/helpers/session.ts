@@ -11,9 +11,9 @@ export function actAs(user: CurrentUser | null) {
 }
 
 export function staffUser(overrides: Partial<CurrentUser> = {}): CurrentUser {
-  return { id: "staff-user", email: "staff@sms.example", role: "STAFF", studentId: null, ...overrides };
+  return { id: "staff-user", email: "staff@sms.example", role: "STAFF", studentId: null, mustChangePassword: false, ...overrides };
 }
 
 export function studentUser(studentId: string, overrides: Partial<CurrentUser> = {}): CurrentUser {
-  return { id: `user-${studentId}`, email: `${studentId}@sms.example`, role: "STUDENT", studentId, ...overrides };
+  return { id: `user-${studentId}`, email: `${studentId}@sms.example`, role: "STUDENT", studentId, mustChangePassword: false, ...overrides };
 }

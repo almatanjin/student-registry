@@ -89,6 +89,7 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
   - Search by name or Student ID and filter by programme and status. The filters live in the URL, so they survive a reload.
   - Create and edit student records. The Student ID (`SMS-2026-0001`) is generated, unique, and never changes.
   - Each student has a fees page with instalments, payment history, balances, and a form to record payments.
+  - Reset a student's password to a temporary one when they cannot sign in.
 - **Assessments:**
   - Create assessments for a module with a deadline, then edit, close, or reopen them.
   - See every student's submission, with late ones flagged, and download the files.
@@ -102,6 +103,7 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 - Their marksheet, which shows grades only for modules whose results are published.
 - Their fees, with any overdue amount highlighted.
 - Their profile, read-only.
+- Changing their password, which is required at the first sign-in after staff set or reset it.
 
 ## Product decisions and assumptions
 
@@ -109,6 +111,12 @@ The brief leaves some rules open; these are the choices made, and why.
 
 - **Login:** email and password, with two roles (Staff and Student), checked on the server for every page and API route.
   A student's sign-in email is their record's email, and staff set an initial password when they create the record.
+- **Passwords:**
+  - A student created in the app must choose a new password the first time they sign in; until then every other page sends them to the change-password page, and API routes answer 403.
+  - Anyone signed in can change their own password from the "Change password" link in the header, by giving their current password and a new one of at least 8 characters.
+  - A student who forgets their password asks the Registry team, who set a temporary password from the student's record ("Reset password"); the student must change it at their next sign-in.
+  - Changing or resetting a password ends every older session, so a reset also signs the student out anywhere they were signed in.
+  - Seeded demo accounts are not asked to change their password, so the demo works straight away with `SEED_USER_PASSWORD`.
 - **Fees:** each programme has an annual fee split into dated instalments (for example 1 October, 15 January, 15 April).
   - New students are billed from their programme's plan for their academic year, and later changes to a plan do not alter existing bills.
   - A student is **overdue** when what they have paid is less than the instalments already due; an instalment becomes due the day after its due date.
@@ -136,7 +144,7 @@ The brief leaves some rules open; these are the choices made, and why.
   - Changing a grade that is already published asks staff to confirm first.
 - **Privacy of other students' data:** a student asking for another student's record, fees, file, or results gets a 404, so the record's existence is not revealed.
 
-**Out of scope:** password reset and user management, screens for editing programmes, modules, and fee plans (they come from the seed), editing or refunding payments, file version history, notifications, and deployment.
+**Out of scope:** a self-service "Forgot password?" email link, resetting staff passwords, user management, screens for editing programmes, modules, and fee plans (they come from the seed), editing or refunding payments, file version history, notifications, and deployment.
 
 ## How it is built
 
@@ -156,6 +164,7 @@ Race conditions are handled in the database: Student IDs come from an atomic cou
 | `GET, POST /api/students` | Staff | List (with `q`, `programmeId`, `status`) or create students |
 | `GET /api/students/[id]` | Staff, the student | Read a student record |
 | `PATCH /api/students/[id]` | Staff | Edit a student record |
+| `PUT /api/students/[id]/password` | Staff | Set a temporary password the student must change (`{ "temporaryPassword" }`, answers 204) |
 | `GET /api/students/[id]/fees` | Staff, the student | Bill, balances, and payment history |
 | `POST /api/students/[id]/payments` | Staff | Record a payment |
 | `GET /api/assessments` | Staff, students | All assessments with counts, or a student's own |

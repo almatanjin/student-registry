@@ -7,6 +7,7 @@ import {
   updateStudentSchema,
   type EnrolmentStatus,
 } from "@/domain/schemas/student";
+import { resetPasswordSchema } from "@/domain/schemas/password";
 import { formatStudentNumber } from "@/domain/student-number";
 import { hashPassword } from "@/server/auth/password";
 import { billStudent } from "@/server/fees/billing";
@@ -129,7 +130,8 @@ export async function createStudent(body: unknown): Promise<StudentView> {
           academicYearStart: input.academicYear,
           status: input.status,
           programme: { connect: { id: input.programmeId } },
-          user: { create: { email: input.email, passwordHash, role: "STUDENT" } },
+          // Staff chose this password, so the student must replace it at first sign-in.
+          user: { create: { email: input.email, passwordHash, role: "STUDENT", mustChangePassword: true } },
         },
         select: studentSelect,
       });
@@ -202,6 +204,26 @@ export async function updateStudent(id: string, body: unknown): Promise<StudentV
     if (isUniqueViolation(error)) throw new ConflictError("duplicate_email", DUPLICATE_EMAIL, "email");
     throw error;
   }
+}
+
+/**
+ * Sets a temporary password chosen by staff. The student must replace it at their next sign-in,
+ * and any session they already have stops working.
+ */
+export async function resetStudentPassword(id: string, body: unknown): Promise<void> {
+  const parsed = resetPasswordSchema.safeParse(body);
+  if (!parsed.success) throw new ValidationError(fieldErrorsFromZod(parsed.error));
+  const student = await prisma.student.findUnique({ where: { id }, select: { userId: true } });
+  if (!student) throw new NotFoundError();
+
+  await prisma.user.update({
+    where: { id: student.userId },
+    data: {
+      passwordHash: await hashPassword(parsed.data.temporaryPassword),
+      mustChangePassword: true,
+      passwordVersion: { increment: 1 },
+    },
+  });
 }
 
 export async function getStudent(id: string): Promise<StudentView> {

@@ -80,6 +80,14 @@ describe("Staff create a student record", () => {
     });
   });
 
+  test("a new student must change the initial password at first sign-in", async () => {
+    await create(newStudent());
+
+    expect(await verifyCredentials("amara.okafor@sms.example", "first-login-pass")).toMatchObject({
+      mustChangePassword: true,
+    });
+  });
+
   test("the email is stored lower-case", async () => {
     const response = await create(newStudent({ email: "  Amara.OKAFOR@SMS.example " }));
 

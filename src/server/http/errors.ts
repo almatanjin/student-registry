@@ -32,8 +32,15 @@ export class UnauthorizedError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
+  constructor(code = "forbidden", message = "You do not have access to this.") {
+    super(403, code, message);
+  }
+}
+
+/** A person whose password was set by staff must replace it before using anything else. */
+export class PasswordChangeRequiredError extends ForbiddenError {
   constructor() {
-    super(403, "forbidden", "You do not have access to this.");
+    super("password_change_required", "Change your password before you continue");
   }
 }
 

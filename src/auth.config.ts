@@ -18,6 +18,8 @@ export const authConfig = {
         token.sub = user.id;
         token.role = user.role;
         token.studentId = user.studentId;
+        token.mustChangePassword = user.mustChangePassword;
+        token.passwordVersion = user.passwordVersion;
       }
       return token;
     },
@@ -25,6 +27,8 @@ export const authConfig = {
       session.user.id = token.sub ?? "";
       session.user.role = token.role;
       session.user.studentId = token.studentId ?? null;
+      session.user.mustChangePassword = token.mustChangePassword ?? false;
+      session.user.passwordVersion = token.passwordVersion;
       return session;
     },
   },
@@ -34,9 +38,19 @@ declare module "next-auth" {
   interface User {
     role: Role;
     studentId: string | null;
+    mustChangePassword: boolean;
+    passwordVersion: number;
   }
   interface Session {
-    user: { id: string; email: string; role: Role; studentId: string | null };
+    user: {
+      id: string;
+      email: string;
+      role: Role;
+      studentId: string | null;
+      /** As it was at sign-in; the server re-reads it, and the proxy uses it only for early redirects. */
+      mustChangePassword: boolean;
+      passwordVersion: number;
+    };
   }
 }
 
@@ -44,5 +58,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     role: Role;
     studentId: string | null;
+    mustChangePassword: boolean;
+    passwordVersion: number;
   }
 }

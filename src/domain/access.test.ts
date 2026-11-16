@@ -8,6 +8,36 @@ describe("homeFor", () => {
   });
 });
 
+describe("pageRedirect while a password must be changed", () => {
+  test("Trying to skip the change", () => {
+    expect(pageRedirect("/student/assessments", "STUDENT", true)).toBe("/change-password");
+    expect(pageRedirect("/staff/dashboard", "STAFF", true)).toBe("/change-password");
+    expect(pageRedirect("/", "STUDENT", true)).toBe("/change-password");
+    expect(pageRedirect("/sign-in", "STUDENT", true)).toBe("/change-password");
+  });
+
+  test("the change-password page itself stays open", () => {
+    expect(pageRedirect("/change-password", "STUDENT", true)).toBeNull();
+  });
+
+  test("the change-password page is open to anyone signed in, and closed to signed-out visitors", () => {
+    expect(pageRedirect("/change-password", "STAFF")).toBeNull();
+    expect(pageRedirect("/change-password", "STUDENT", false)).toBeNull();
+    expect(pageRedirect("/change-password", null)).toBe("/sign-in");
+  });
+});
+
+describe("pageRedirect for a session that has ended", () => {
+  test("the session-ended page is reachable whatever the session says, so the cookie can be cleared", () => {
+    expect(pageRedirect("/session-ended", "STUDENT")).toBeNull();
+    expect(pageRedirect("/session-ended", "STAFF", true)).toBeNull();
+  });
+
+  test("signed-out visitors go straight to sign-in", () => {
+    expect(pageRedirect("/session-ended", null)).toBe("/sign-in");
+  });
+});
+
 describe("pageRedirect", () => {
   test("Visiting a page while signed out", () => {
     expect(pageRedirect("/staff/students", null)).toBe("/sign-in");

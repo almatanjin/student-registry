@@ -1,14 +1,15 @@
-import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/server/http/errors";
+import { ForbiddenError, NotFoundError, PasswordChangeRequiredError, UnauthorizedError } from "@/server/http/errors";
 import { getCurrentUser } from "./current-user";
 import type { CurrentUser } from "./types";
 
 export type StaffUser = CurrentUser & { role: "STAFF" };
 export type StudentUser = CurrentUser & { role: "STUDENT"; studentId: string };
 
-/** Any signed-in user; 401 when signed out. */
+/** Any signed-in user; 401 when signed out, and 403 until a password set by staff has been changed. */
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) throw new UnauthorizedError();
+  if (user.mustChangePassword) throw new PasswordChangeRequiredError();
   return user;
 }
 

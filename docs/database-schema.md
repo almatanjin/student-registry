@@ -26,6 +26,8 @@ erDiagram
     string email UK "lower-case"
     string passwordHash "bcrypt"
     Role role "STAFF or STUDENT"
+    boolean mustChangePassword "set by staff, not yet changed"
+    int passwordVersion "goes up on every change"
   }
   Student {
     string id PK
@@ -113,6 +115,8 @@ erDiagram
 ## Notes
 
 - `StudentNumberCounter` stands alone: it holds one row per year and hands out Student ID numbers atomically.
+- `User.mustChangePassword` is true while a password set by staff (a new student's initial password, or a reset) is still in use; the person must change it before using the app.
+- `User.passwordVersion` goes up on every password change or reset; a session signed in with an older version stops working.
 - A staff user has no `Student` row; `Payment.recordedById` points to the staff user who recorded the payment.
 - Money is stored as integer minor units (pence) in the `amountMinor` and `annualFeeMinor` columns.
 - Balances, the late flag, and grade classifications are calculated when read and are not stored.

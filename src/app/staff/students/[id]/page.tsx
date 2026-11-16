@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/format";
 import { requireStaffPage } from "@/server/auth/pages";
 import { NotFoundError } from "@/server/http/errors";
 import { getStudent } from "@/server/students/service";
+import { ResetPasswordForm } from "./reset-password-form";
 
 export const metadata: Metadata = { title: "Student · Student Registry" };
 
@@ -66,6 +67,17 @@ export default async function StudentPage({ params }: PageProps<"/staff/students
               { label: "Enrolment status", value: <StatusBadge status={student.status} /> },
             ]}
           />
+        </CardContent>
+      </Card>
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Sign-in</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <p className="text-sm text-muted-foreground">
+            If the student has forgotten their password, set a temporary one. They must change it when they next sign in.
+          </p>
+          <ResetPasswordForm studentId={id} />
         </CardContent>
       </Card>
     </>

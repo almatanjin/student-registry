@@ -32,7 +32,7 @@ test("seeded Student IDs follow the format and the per-year sequence", async () 
 });
 
 test.each(SEED_STUDENTS.map((s) => s.email))("seeded student %s can sign in", async (email) => {
-  expect(await verifyCredentials(email, PASSWORD)).toMatchObject({ email, role: "STUDENT" });
+  expect(await verifyCredentials(email, PASSWORD)).toMatchObject({ email, role: "STUDENT", mustChangePassword: false });
 });
 
 test("the README lists every seeded student email", () => {

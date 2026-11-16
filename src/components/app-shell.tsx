@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
 import { signOutAction } from "@/app/sign-in/actions";
 import { Button } from "@/components/ui/button";
+import { CHANGE_PASSWORD_PATH } from "@/domain/access";
 import { NavLinks, type NavItem } from "./nav-links";
 
 type AppShellProps = {
@@ -24,6 +25,12 @@ export function AppShell({ homeHref, areaLabel, nav, userLabel, children }: AppS
           <NavLinks items={nav} />
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{userLabel}</span>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={CHANGE_PASSWORD_PATH}>
+                <KeyRound />
+                Change password
+              </Link>
+            </Button>
             <form action={signOutAction}>
               <Button type="submit" variant="outline" size="sm">
                 <LogOut />

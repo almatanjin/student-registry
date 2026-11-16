@@ -1,7 +1,7 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { STAFF_SESSION } from "./support/accounts";
-import { signInAs } from "./support/sign-in";
+import { signIn } from "./support/sign-in";
 
 const FIXTURES = path.join(import.meta.dirname, "..", "tests", "fixtures");
 
@@ -47,10 +47,16 @@ test("a student's journey from enrolment to a released result", async ({ browser
   await expect(staff.getByRole("heading", { name: "Journey capstone" })).toBeVisible();
   const assessmentUrl = staff.url();
 
-  // The student signs in, submits on time, and sees nothing released yet.
+  // The student signs in, replaces the initial password, submits on time, and sees nothing released yet.
   const studentContext = await browser.newContext();
   const student = await studentContext.newPage();
-  await signInAs(student, "journey.student@students.sms.example", "journey-pass-123");
+  await signIn(student, "journey.student@students.sms.example", "journey-pass-123");
+  await expect(student).toHaveURL(/\/change-password$/);
+  await student.getByLabel("Current password").fill("journey-pass-123");
+  await student.getByLabel("New password", { exact: true }).fill("journey-own-pass");
+  await student.getByLabel("Confirm new password").fill("journey-own-pass");
+  await student.getByRole("button", { name: "Change password" }).click();
+  await expect(student).toHaveURL(/\/student\/assessments$/);
   await student.getByRole("list", { name: "Your assessments" }).getByRole("link", { name: /Journey capstone/ }).click();
   await student.getByLabel("Your file").setInputFiles(path.join(FIXTURES, "sample.pdf"));
   await student.getByRole("button", { name: "Submit" }).click();

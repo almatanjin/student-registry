@@ -36,13 +36,20 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
-      testIgnore: /journey\.spec\.ts$/,
+      testIgnore: /(journey|password-change)\.spec\.ts$/,
+    },
+    // Creates students and changes passwords, so it runs after the tests that expect only the seeded data.
+    {
+      name: "accounts",
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["chromium"],
+      testMatch: /password-change\.spec\.ts$/,
     },
     // The full journey adds data of its own, so it runs after every other test.
     {
       name: "journey",
       use: { ...devices["Desktop Chrome"] },
-      dependencies: ["chromium"],
+      dependencies: ["accounts"],
       testMatch: /journey\.spec\.ts$/,
     },
   ],

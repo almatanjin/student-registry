@@ -30,11 +30,15 @@ enum ResultState {
 
 /// A sign-in account. Email is stored lower-case and is unique across staff and students.
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  role         Role
-  createdAt    DateTime @default(now())
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String
+  role               Role
+  /// True after staff set the password (new student or reset); cleared when the person changes it.
+  mustChangePassword Boolean  @default(false)
+  /// Goes up on every password change or reset; sessions signed in with an older version stop working.
+  passwordVersion    Int      @default(0)
+  createdAt          DateTime @default(now())
 
   student          Student?
   recordedPayments Payment[]

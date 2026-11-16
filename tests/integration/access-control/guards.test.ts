@@ -86,3 +86,31 @@ describe("Students only see their own data", () => {
     expect(response.status).toBe(403);
   });
 });
+
+describe("Initial and reset passwords must be changed at the next sign-in", () => {
+  const mustChange = {
+    error: { code: "password_change_required", message: "Change your password before you continue" },
+  };
+
+  test("API call before the change", async () => {
+    actAs(studentUser("student-a", { mustChangePassword: true }));
+
+    for (const response of [
+      await studentRoute(request(), params("student-a")),
+      await ownRecordRoute(request(), params("x")),
+      await staffRoute(request(), params("x")),
+    ]) {
+      expect(response.status).toBe(403);
+      expect(await response.json()).toEqual(mustChange);
+    }
+  });
+
+  test("staff who must change their password are refused too", async () => {
+    actAs(staffUser({ mustChangePassword: true }));
+
+    const response = await staffRoute(request(), params("x"));
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual(mustChange);
+  });
+});
