@@ -118,15 +118,19 @@ export function PaymentHistoryCard({ fees }: { fees: FeesView }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Reference</TableHead>
+                <TableHead className="hidden sm:table-cell">Reference</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {fees.payments.map((payment) => (
                 <TableRow key={payment.id}>
-                  <TableCell>{formatDate(payment.paidOn)}</TableCell>
-                  <TableCell className="font-mono text-xs">{payment.reference}</TableCell>
+                  <TableCell>
+                    {formatDate(payment.paidOn)}
+                    {/* On phones the reference sits under the date, so the amount stays in view. */}
+                    <div className="font-mono text-xs text-muted-foreground sm:hidden">{payment.reference}</div>
+                  </TableCell>
+                  <TableCell className="hidden font-mono text-xs sm:table-cell">{payment.reference}</TableCell>
                   <TableCell className="text-right tabular-nums">{money(payment.amountMinor)}</TableCell>
                 </TableRow>
               ))}
