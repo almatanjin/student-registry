@@ -9,6 +9,7 @@ Gives every signed-in person a consistent way to move around the Registry: a sid
 ### Requirement: Each role sees its own sidebar
 Every signed-in page SHALL show a sidebar with the PEN circles mark, "Student Registry", the person's role, and links to that role's pages, each with an icon.
 Staff SHALL see Dashboard, Students, Assessments, Results, and Programmes; Students SHALL see Assessments, Marksheet, Fees, and Profile.
+The change-password page SHALL show the sidebar too, except while the person must change a password set by staff, when it shows only the form and "Sign out".
 
 #### Scenario: Staff sidebar
 - **WHEN** staff open any staff page on a desktop screen
@@ -17,6 +18,14 @@ Staff SHALL see Dashboard, Students, Assessments, Results, and Programmes; Stude
 #### Scenario: Student sidebar
 - **WHEN** a Student opens any student page on a desktop screen
 - **THEN** the sidebar shows "Student Registry", "Student", and the links Assessments, Marksheet, Fees, and Profile, in that order, and no staff links
+
+#### Scenario: Change password page
+- **WHEN** a signed-in person chooses "Change password" in the sidebar footer
+- **THEN** the change-password form opens with the same sidebar beside it, so they can go back to any of their pages
+
+#### Scenario: Forced change has no sidebar
+- **WHEN** a person who must change a password set by staff is on the change-password page
+- **THEN** no sidebar or navigation is shown, only the form and "Sign out"
 
 ### Requirement: The current page is marked
 The sidebar link for the section being viewed SHALL be highlighted and announced as the current page, including on pages inside that section.
