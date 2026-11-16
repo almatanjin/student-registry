@@ -145,6 +145,7 @@ Staff navigation: Dashboard (overdue balances), Students, Assessments, Programme
 Student navigation: Assessments, Marksheet, Fees, Profile.
 After sign-in, Staff land on the Dashboard and Students land on Assessments.
 The student list keeps search and filters in the URL query string, rendered on the server, so reloads and shared links keep them.
+The search box and filters update the URL as staff type (debounced by 300 ms) or change a filter, replacing the history entry so Back leaves the page instead of stepping through each keystroke.
 Late submissions, overdue amounts, and enrolment statuses use consistent badges, and every list has an empty state.
 
 ### 12. Local setup, seed, and tests

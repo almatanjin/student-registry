@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { EmptyState, PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ENROLMENT_STATUSES, STATUS_LABELS, studentListQuerySchema } from "@/domain/schemas/student";
+import { studentListQuerySchema } from "@/domain/schemas/student";
 import { requireStaffPage } from "@/server/auth/pages";
 import { listProgrammeOptions } from "@/server/programmes/service";
 import { listStudents } from "@/server/students/service";
+import { StudentFilters } from "./student-filters";
 
 export const metadata: Metadata = { title: "Students · Student Registry" };
 
@@ -44,45 +42,7 @@ export default async function StudentsPage({ searchParams }: PageProps<"/staff/s
         }
       />
 
-      <form method="get" role="search" className="mb-4 grid gap-3 rounded-lg border bg-muted/30 p-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end">
-        <div className="grid gap-1.5">
-          <Label htmlFor="q">Search</Label>
-          <Input id="q" name="q" type="search" placeholder="Name or Student ID" defaultValue={filters.q ?? ""} />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="programmeId">Programme</Label>
-          <NativeSelect id="programmeId" name="programmeId" defaultValue={filters.programmeId ?? ""} className="w-full sm:w-56">
-            <NativeSelectOption value="">All programmes</NativeSelectOption>
-            {programmes.map((programme) => (
-              <NativeSelectOption key={programme.id} value={programme.id}>
-                {programme.name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="status">Status</Label>
-          <NativeSelect id="status" name="status" defaultValue={filters.status ?? ""} className="w-full sm:w-40">
-            <NativeSelectOption value="">All statuses</NativeSelectOption>
-            {ENROLMENT_STATUSES.map((status) => (
-              <NativeSelectOption key={status} value={status}>
-                {STATUS_LABELS[status]}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit">
-            <Search />
-            Search
-          </Button>
-          {filtered ? (
-            <Button variant="ghost" asChild>
-              <Link href="/staff/students">Clear filters</Link>
-            </Button>
-          ) : null}
-        </div>
-      </form>
+      <StudentFilters programmes={programmes} />
 
       {students.length === 0 ? (
         <EmptyState title={filtered ? "No students match these filters" : "No students yet"}>

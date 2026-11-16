@@ -41,6 +41,7 @@
 - [x] 4.6 Build the staff create and edit forms with field errors and no Student ID input, plus a student detail page, and verify a Playwright test that creates a student and sees the generated ID
 - [x] 4.7 Build the read-only student profile page, and verify a Playwright test that a signed-in Student sees their own details with no edit controls and is sent back to their own pages when opening the staff student list
 - [x] 4.8 Run lint, type checking, and the unit, integration, and Playwright suites, and verify all pass with no retries before starting the next group
+- [x] 4.9 Make the student list search as staff type and apply filters on change, with no Search button, and verify a Playwright test that typing alone narrows the list while the search box keeps focus
 
 ## 5. Fees and payments
 

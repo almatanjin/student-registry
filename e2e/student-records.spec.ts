@@ -28,15 +28,25 @@ test.describe("Staff search and filter the student list", () => {
 
   test("Search by part of a name", async ({ page }) => {
     await page.getByLabel("Search").fill("ROSS");
-    await page.getByRole("button", { name: "Search" }).click();
 
     await expect(studentRows(page)).toHaveCount(1);
     await expect(studentRows(page)).toContainText("Sofia Rossi");
   });
 
+  test("Results update while typing", async ({ page }) => {
+    const search = page.getByLabel("Search");
+    await search.pressSequentially("ross");
+
+    await expect(page).toHaveURL(/q=ross/);
+    await expect(studentRows(page)).toHaveCount(1);
+    await expect(studentRows(page)).toContainText("Sofia Rossi");
+    await expect(search).toBeFocused();
+    await expect(search).toHaveValue("ross");
+    await expect(page.getByRole("button", { name: "Search" })).toHaveCount(0);
+  });
+
   test("Search by Student ID", async ({ page }) => {
     await page.getByLabel("Search").fill(`${currentYear}-0001`);
-    await page.getByRole("button", { name: "Search" }).click();
 
     await expect(studentRows(page)).toHaveCount(1);
     await expect(studentRows(page)).toContainText("Amara Okafor");
@@ -45,7 +55,6 @@ test.describe("Staff search and filter the student list", () => {
   test("Combined filters", async ({ page }) => {
     await page.getByLabel("Programme").selectOption({ label: "BSc (Hons) Computer Science" });
     await page.getByLabel("Status").selectOption({ label: "Withdrawn" });
-    await page.getByRole("button", { name: "Search" }).click();
 
     await expect(studentRows(page)).toHaveCount(1);
     await expect(studentRows(page)).toContainText("Fatima Hassan");
@@ -54,7 +63,6 @@ test.describe("Staff search and filter the student list", () => {
   test("No matches", async ({ page }) => {
     await page.getByLabel("Programme").selectOption({ label: "MSc Data Science" });
     await page.getByLabel("Status").selectOption({ label: "Withdrawn" });
-    await page.getByRole("button", { name: "Search" }).click();
 
     await expect(page.getByText("No students match these filters")).toBeVisible();
     await page.getByRole("link", { name: "Clear filters" }).first().click();
@@ -66,7 +74,6 @@ test.describe("Staff search and filter the student list", () => {
   test("Filters survive a reload", async ({ page }) => {
     await page.getByLabel("Search").fill("a");
     await page.getByLabel("Status").selectOption({ label: "Enrolled" });
-    await page.getByRole("button", { name: "Search" }).click();
     await expect(page).toHaveURL(/status=ENROLLED/);
     const before = await studentRows(page).allTextContents();
 

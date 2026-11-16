@@ -87,10 +87,15 @@ The programme or academic year SHALL NOT be changed once a payment has been reco
 ### Requirement: Staff search and filter the student list
 The student list SHALL let staff search by name or Student ID, matching any part of either, case-insensitively, and filter by programme and by enrolment status.
 Search and filters SHALL combine, and the list SHALL show each student's Student ID, name, programme, academic year, and status.
+The list SHALL update as staff type in the search box, after a short pause in typing, and as soon as they change a filter, with no Search button to press.
 
 #### Scenario: Search by part of a name
 - **WHEN** staff search for `ali`
 - **THEN** the list shows every student whose name contains "ali" in any letter case, and no others
+
+#### Scenario: Results update while typing
+- **WHEN** staff type part of a name in the search box and stop typing
+- **THEN** the list updates to the matching students without pressing a button, and the search box keeps focus and the typed text
 
 #### Scenario: Search by Student ID
 - **WHEN** staff search for `2025-0003`
