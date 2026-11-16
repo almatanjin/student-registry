@@ -80,7 +80,7 @@ test.describe("Signed-in people change their own password", () => {
 
     await expect(page).toHaveURL(/\/change-password$/);
     await expect(page.getByRole("heading", { name: "Change password" })).toBeVisible();
-    await page.getByRole("link", { name: "Back to the registry" }).click();
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Dashboard" }).click();
     await expect(page).toHaveURL(/\/staff\/dashboard$/);
     await staff.close();
   });
@@ -92,7 +92,6 @@ test.describe("Signed-in people change their own password", () => {
     await changePassword(page, student.password, "second-own-pass");
 
     await expect(page.getByText("Your password has been changed")).toBeVisible();
-    await page.getByRole("link", { name: "Back to the registry" }).click();
     await page.getByRole("button", { name: "Sign out" }).click();
     await expectOnSignInPage(page);
     await signIn(page, student.email, student.password);
@@ -108,7 +107,6 @@ test.describe("Signed-in people change their own password", () => {
     await changePassword(page, "not-my-password", "another-pass-1");
 
     await expect(page.getByLabel("Current password")).toHaveAccessibleDescription("Your current password is incorrect");
-    await page.getByRole("link", { name: "Back to the registry" }).click();
     await page.getByRole("button", { name: "Sign out" }).click();
     await expectOnSignInPage(page);
     await signIn(page, student.email, student.password);

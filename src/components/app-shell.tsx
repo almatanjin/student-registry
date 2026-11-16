@@ -1,46 +1,27 @@
-import Link from "next/link";
-import { KeyRound, LogOut } from "lucide-react";
-import { signOutAction } from "@/app/sign-in/actions";
-import { Button } from "@/components/ui/button";
-import { CHANGE_PASSWORD_PATH } from "@/domain/access";
-import { NavLinks, type NavItem } from "./nav-links";
+import { PhoneMenu } from "./phone-menu";
+import { Brand, SidebarContent, type SidebarProps } from "./sidebar-content";
 
-type AppShellProps = {
-  homeHref: string;
-  areaLabel: string;
-  nav: NavItem[];
-  userLabel: string;
-  children: React.ReactNode;
-};
+type AppShellProps = SidebarProps & { children: React.ReactNode };
 
-export function AppShell({ homeHref, areaLabel, nav, userLabel, children }: AppShellProps) {
+/**
+ * The signed-in layout: a sidebar that stays in view on wide screens, and the page beside it.
+ * On narrow screens a top bar with a "Menu" button opens the same sidebar content.
+ */
+export function AppShell({ children, ...sidebar }: AppShellProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <Link href={homeHref} className="flex items-baseline gap-2 font-semibold">
-            Student Registry
-            <span className="text-xs font-normal text-muted-foreground">{areaLabel}</span>
-          </Link>
-          <NavLinks items={nav} />
-          <div className="ml-auto flex items-center gap-3">
-            <span className="hidden text-sm text-muted-foreground sm:inline">{userLabel}</span>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={CHANGE_PASSWORD_PATH}>
-                <KeyRound />
-                Change password
-              </Link>
-            </Button>
-            <form action={signOutAction}>
-              <Button type="submit" variant="outline" size="sm">
-                <LogOut />
-                Sign out
-              </Button>
-            </form>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+    <div className="min-h-screen lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <aside
+        aria-label="Sidebar"
+        className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r bg-shell px-3 py-4 lg:flex"
+      >
+        <SidebarContent {...sidebar} />
+      </aside>
+      <div className="flex min-w-0 flex-col">
+        <PhoneMenu brand={<Brand homeHref={sidebar.homeHref} size={28} />}>
+          <SidebarContent {...sidebar} />
+        </PhoneMenu>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+      </div>
     </div>
   );
 }

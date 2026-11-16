@@ -2,27 +2,54 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Award,
+  BookOpen,
+  ClipboardList,
+  FileText,
+  LayoutDashboard,
+  User,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sidebarRowClass } from "./sidebar-styles";
 
-export type NavItem = { href: string; label: string };
+/** Icons by name, because server layouts cannot pass icon components to this client component. */
+const ICONS = {
+  dashboard: LayoutDashboard,
+  students: Users,
+  assessments: ClipboardList,
+  results: Award,
+  programmes: BookOpen,
+  marksheet: FileText,
+  fees: Wallet,
+  profile: User,
+} satisfies Record<string, LucideIcon>;
+
+export type NavIcon = keyof typeof ICONS;
+export type NavItem = { href: string; label: string; icon: NavIcon };
 
 export function NavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Main" className="order-last -mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:order-none sm:mx-0 sm:w-auto sm:px-0">
-      <ul className="flex gap-1 whitespace-nowrap">
+    <nav aria-label="Main">
+      <ul className="grid gap-0.5">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = ICONS[item.icon];
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-muted",
-                  active ? "bg-muted font-medium text-foreground" : "text-muted-foreground",
+                  sidebarRowClass,
+                  active ? "bg-nav-active font-medium text-nav-active-foreground hover:bg-nav-active" : "text-muted-foreground",
                 )}
               >
+                <Icon aria-hidden />
                 {item.label}
               </Link>
             </li>
