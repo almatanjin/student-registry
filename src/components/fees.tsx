@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { Pill } from "@/components/status-badge";
+import { Pill, type Tone } from "@/components/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { InstalmentState } from "@/domain/fees";
@@ -8,18 +8,18 @@ import { formatDate } from "@/lib/format";
 import { money } from "@/server/config";
 import type { FeesView } from "@/server/fees/service";
 
-const STATE: Record<InstalmentState, { label: string; className: string }> = {
-  paid: { label: "Paid", className: "bg-emerald-50 text-emerald-800 ring-emerald-600/20 dark:bg-emerald-950 dark:text-emerald-300" },
-  overdue: { label: "Overdue", className: "bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-950 dark:text-red-300" },
-  upcoming: { label: "Upcoming", className: "bg-zinc-100 text-zinc-700 ring-zinc-500/20 dark:bg-zinc-800 dark:text-zinc-300" },
+const STATE: Record<InstalmentState, { label: string; tone: Tone }> = {
+  paid: { label: "Paid", tone: "green" },
+  overdue: { label: "Overdue", tone: "red" },
+  upcoming: { label: "Upcoming", tone: "sky" },
 };
 
 export function InstalmentStateBadge({ state }: { state: InstalmentState }) {
-  return <Pill className={STATE[state].className}>{STATE[state].label}</Pill>;
+  return <Pill tone={STATE[state].tone}>{STATE[state].label}</Pill>;
 }
 
 export function OverdueBadge() {
-  return <Pill className={STATE.overdue.className}>Overdue</Pill>;
+  return <Pill tone={STATE.overdue.tone}>Overdue</Pill>;
 }
 
 /** Total, paid, outstanding, and overdue amounts, with the overdue amount highlighted when above zero. */
@@ -41,7 +41,7 @@ export function FeeSummary({ fees }: { fees: FeesView }) {
       <div
         className={cn(
           "rounded-lg border p-4",
-          overdue && "border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-200",
+          overdue && "border-tone-red-foreground/20 bg-tone-red text-tone-red-foreground",
         )}
         role="group"
         aria-label="Overdue"
@@ -83,7 +83,7 @@ export function InstalmentsCard({ fees }: { fees: FeesView }) {
               {fees.instalments.map((instalment) => (
                 <TableRow
                   key={instalment.sequence}
-                  className={cn(instalment.state === "overdue" && "bg-red-50/60 dark:bg-red-950/40")}
+                  className={cn(instalment.state === "overdue" && "bg-tone-red/60")}
                 >
                   <TableCell>{formatDate(instalment.dueDate)}</TableCell>
                   <TableCell className="text-right tabular-nums">{money(instalment.amountMinor)}</TableCell>

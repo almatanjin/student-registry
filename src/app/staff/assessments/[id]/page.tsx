@@ -74,7 +74,7 @@ export default async function StaffAssessmentPage({ params }: PageProps<"/staff/
             aria-label={item.label}
             className={cn(
               "rounded-lg border p-3",
-              item.highlight && "border-orange-200 bg-orange-50 text-orange-900 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200",
+              item.highlight && "border-tone-yellow-foreground/20 bg-tone-yellow text-tone-yellow-foreground",
             )}
           >
             <p className="text-sm text-muted-foreground">{item.label}</p>
@@ -111,7 +111,7 @@ export default async function StaffAssessmentPage({ params }: PageProps<"/staff/
                 {rows.map(({ student, submission, grade, resultState }) => (
                   <TableRow
                     key={student.id}
-                    className={cn(submission?.state === "late" && "bg-orange-50/70 dark:bg-orange-950/40")}
+                    className={cn(submission?.state === "late" && "bg-tone-yellow/60")}
                   >
                     <TableCell className="whitespace-normal">
                       <span className="font-medium">{student.fullName}</span>

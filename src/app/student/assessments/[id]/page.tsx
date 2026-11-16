@@ -98,10 +98,10 @@ export default async function StudentAssessmentPage({ params, searchParams }: Pa
             </CardHeader>
             <CardContent className="grid gap-4">
               {upload.action === "create-late" ? (
-                <Alert className="border-orange-200 bg-orange-50 text-orange-900 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-200">
+                <Alert className="border-tone-yellow-foreground/20 bg-tone-yellow text-tone-yellow-foreground">
                   <AlertTriangle />
                   <AlertTitle>The deadline has passed</AlertTitle>
-                  <AlertDescription className="text-orange-900 dark:text-orange-200">
+                  <AlertDescription className="text-tone-yellow-foreground">
                     You can still submit, but your work will be marked late.
                   </AlertDescription>
                 </Alert>

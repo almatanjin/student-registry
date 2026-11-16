@@ -66,7 +66,7 @@ export default async function StaffAssessmentsPage() {
                     </TableCell>
                     <TableCell className="hidden text-right tabular-nums sm:table-cell">{assessment.counts.onTime}</TableCell>
                     <TableCell className="hidden text-right tabular-nums sm:table-cell">
-                      <span className={assessment.counts.late > 0 ? "font-medium text-orange-700 dark:text-orange-400" : undefined}>
+                      <span className={assessment.counts.late > 0 ? "font-medium text-tone-yellow-foreground" : undefined}>
                         {assessment.counts.late}
                       </span>
                     </TableCell>

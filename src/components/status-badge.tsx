@@ -1,23 +1,37 @@
 import { STATUS_LABELS, type EnrolmentStatus } from "@/domain/schemas/student";
 import { cn } from "@/lib/utils";
 
-const STYLES: Record<EnrolmentStatus, string> = {
-  ENROLLED: "bg-emerald-50 text-emerald-800 ring-emerald-600/20 dark:bg-emerald-950 dark:text-emerald-300",
-  DEFERRED: "bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-950 dark:text-amber-300",
-  WITHDRAWN: "bg-zinc-100 text-zinc-700 ring-zinc-500/20 dark:bg-zinc-800 dark:text-zinc-300",
-  COMPLETED: "bg-sky-50 text-sky-800 ring-sky-600/20 dark:bg-sky-950 dark:text-sky-300",
+/** One colour per meaning, set in theme.css. See the comment there for which labels use which tone. */
+export type Tone = "green" | "yellow" | "red" | "blue" | "purple" | "sky" | "neutral";
+
+const TONES: Record<Tone, string> = {
+  green: "bg-tone-green text-tone-green-foreground ring-tone-green-foreground/20",
+  yellow: "bg-tone-yellow text-tone-yellow-foreground ring-tone-yellow-foreground/25",
+  red: "bg-tone-red text-tone-red-foreground ring-tone-red-foreground/20",
+  blue: "bg-tone-blue text-tone-blue-foreground ring-tone-blue-foreground/20",
+  purple: "bg-tone-purple text-tone-purple-foreground ring-tone-purple-foreground/20",
+  sky: "bg-tone-sky text-tone-sky-foreground ring-tone-sky-foreground/25",
+  neutral: "bg-tone-neutral text-tone-neutral-foreground ring-tone-neutral-foreground/20",
+};
+
+const STATUS_TONES: Record<EnrolmentStatus, Tone> = {
+  ENROLLED: "green",
+  DEFERRED: "yellow",
+  WITHDRAWN: "neutral",
+  COMPLETED: "blue",
 };
 
 export function StatusBadge({ status }: { status: EnrolmentStatus }) {
-  return <Pill className={STYLES[status]}>{STATUS_LABELS[status]}</Pill>;
+  return <Pill tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Pill>;
 }
 
 /** Small rounded label used for every status-like badge, so they all look the same. */
-export function Pill({ className, children }: { className?: string; children: React.ReactNode }) {
+export function Pill({ tone, className, children }: { tone: Tone; className?: string; children: React.ReactNode }) {
   return (
     <span
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset",
+        TONES[tone],
         className,
       )}
     >

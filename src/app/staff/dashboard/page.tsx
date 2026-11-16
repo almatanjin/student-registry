@@ -31,7 +31,7 @@ export default async function StaffDashboardPage() {
         </CardHeader>
         <CardContent>
           {overdue.length === 0 ? (
-            <p className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <p className="flex items-center gap-2 text-sm font-medium text-tone-green-foreground">
               <CheckCircle2 className="size-4" />
               No overdue balances
             </p>
@@ -64,7 +64,7 @@ export default async function StaffDashboardPage() {
                     <TableCell className="hidden md:table-cell">
                       <StatusBadge status={entry.status} />
                     </TableCell>
-                    <TableCell className="text-right font-medium text-red-700 tabular-nums dark:text-red-400">
+                    <TableCell className="text-right font-medium text-tone-red-foreground tabular-nums">
                       {money(entry.overdueMinor)}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">{formatDate(entry.earliestUnpaidDueDate)}</TableCell>

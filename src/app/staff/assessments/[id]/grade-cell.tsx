@@ -82,7 +82,7 @@ export function GradeCell({ assessmentId, studentId, studentName, initial, publi
         </p>
       ) : null}
       {confirming ? (
-        <div role="alert" className="grid gap-2 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+        <div role="alert" className="grid gap-2 rounded-md border border-tone-yellow-foreground/25 bg-tone-yellow p-2 text-xs text-tone-yellow-foreground">
           <p className="flex items-start gap-1.5">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
             This result is already released. {studentName} will see the new grade straight away.
