@@ -1,0 +1,29 @@
+/*
+ * App theme: the one place to change button colours and fonts.
+ * Edit a value below, save, and the dev server updates every page.
+ *
+ * Colours accept any CSS colour: #2563eb, rgb(37 99 235), oklch(0.55 0.2 260), or a name like teal.
+ * The full design palette (borders, muted text, badges) lives in globals.css.
+ */
+
+:root {
+  /* Fonts */
+
+  /* Body text, tables, forms, and buttons. Geist is loaded in layout.tsx. */
+  --app-font-body: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Page and card headings. */
+  --app-font-heading: var(--app-font-body);
+
+  /* Code-style text, such as Student IDs. */
+  --app-font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Main buttons ("Add student", "Sign in", "Record payment") */
+
+  --app-button-background: var(--primary);
+  --app-button-text: var(--primary-foreground);
+  --app-button-hover-background: color-mix(in oklch, var(--app-button-background) 80%, transparent);
+
+  /* Corner rounding for buttons. Use 0 for square corners or 9999px for pills. */
+  --app-button-radius: var(--radius);
+}

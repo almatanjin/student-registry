@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
-  // globals.css maps Tailwind's font-sans to this variable.
-  variable: "--font-sans",
+  // theme.css uses this variable for the body font.
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
