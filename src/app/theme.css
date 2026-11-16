@@ -18,12 +18,58 @@
   /* Code-style text, such as Student IDs. */
   --app-font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Main buttons ("Add student", "Sign in", "Record payment") */
+  /* Main buttons ("Add student", "Sign in", "Record payment"), in the PEN logo blue */
 
-  --app-button-background: var(--primary);
-  --app-button-text: var(--primary-foreground);
-  --app-button-hover-background: color-mix(in oklch, var(--app-button-background) 80%, transparent);
+  --app-button-background: #0269af;
+  --app-button-text: #ffffff;
+  --app-button-hover-background: #01568f;
 
   /* Corner rounding for buttons. Use 0 for square corners or 9999px for pills. */
   --app-button-radius: var(--radius);
+
+  /* Sidebar and dashboard. Colours are taken from the PEN logo. */
+
+  /* Sidebar (and the top bar on phones), and the highlight on the current link. */
+  --app-sidebar-background: #f8f9fb;
+  --app-nav-active-background: #ddebf8;
+  --app-nav-active-text: #014e83;
+
+  /*
+   * Dashboard tiles: a light tint for the tile and the deep logo colour for its icon badge.
+   * Keep tints light so the dark text on them stays easy to read.
+   */
+  --app-tile-blue: #cfe4f6;
+  --app-tile-blue-icon: #0269af;
+  --app-tile-yellow: #ffe69a;
+  --app-tile-yellow-icon: #c99700;
+  --app-tile-green: #c6ebd4;
+  --app-tile-green-icon: #0a9748;
+  --app-tile-purple: #e5cfea;
+  --app-tile-purple-icon: #844393;
+
+  /*
+   * Status pill tones, one per meaning, so every badge with the same meaning matches.
+   * Each tone is a light background and a darker text colour from the same PEN logo colour.
+   *   green:   done or good       (Enrolled, On time, Paid, Published, Pass)
+   *   yellow:  needs attention    (Deferred, Late)
+   *   red:     a problem          (Overdue, Fail)
+   *   blue:    finished or noted  (Completed, Merit)
+   *   purple:  special or held    (Distinction, Withheld)
+   *   sky:     waiting            (Pending, Open, Upcoming)
+   *   neutral: inactive           (Withdrawn, Not submitted, Closed)
+   */
+  --app-tone-green: #e3f4ea;
+  --app-tone-green-text: #07672f;
+  --app-tone-yellow: #fff3c4;
+  --app-tone-yellow-text: #7a5a00;
+  --app-tone-red: #fde8e8;
+  --app-tone-red-text: #b31b1a;
+  --app-tone-blue: #e1eef9;
+  --app-tone-blue-text: #01568f;
+  --app-tone-purple: #f1e4f4;
+  --app-tone-purple-text: #6b3478;
+  --app-tone-sky: #e2f4fc;
+  --app-tone-sky-text: #1d6f94;
+  --app-tone-neutral: #eef1f5;
+  --app-tone-neutral-text: #4a5565;
 }

@@ -15,6 +15,31 @@
   --color-button-foreground: var(--app-button-text);
   --color-button-hover: var(--app-button-hover-background);
   --radius-button: var(--app-button-radius);
+  --color-shell: var(--app-sidebar-background);
+  --color-nav-active: var(--app-nav-active-background);
+  --color-nav-active-foreground: var(--app-nav-active-text);
+  --color-tile-blue: var(--app-tile-blue);
+  --color-tile-blue-icon: var(--app-tile-blue-icon);
+  --color-tile-yellow: var(--app-tile-yellow);
+  --color-tile-yellow-icon: var(--app-tile-yellow-icon);
+  --color-tile-green: var(--app-tile-green);
+  --color-tile-green-icon: var(--app-tile-green-icon);
+  --color-tile-purple: var(--app-tile-purple);
+  --color-tile-purple-icon: var(--app-tile-purple-icon);
+  --color-tone-green: var(--app-tone-green);
+  --color-tone-green-foreground: var(--app-tone-green-text);
+  --color-tone-yellow: var(--app-tone-yellow);
+  --color-tone-yellow-foreground: var(--app-tone-yellow-text);
+  --color-tone-red: var(--app-tone-red);
+  --color-tone-red-foreground: var(--app-tone-red-text);
+  --color-tone-blue: var(--app-tone-blue);
+  --color-tone-blue-foreground: var(--app-tone-blue-text);
+  --color-tone-purple: var(--app-tone-purple);
+  --color-tone-purple-foreground: var(--app-tone-purple-text);
+  --color-tone-sky: var(--app-tone-sky);
+  --color-tone-sky-foreground: var(--app-tone-sky-text);
+  --color-tone-neutral: var(--app-tone-neutral);
+  --color-tone-neutral-foreground: var(--app-tone-neutral-text);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -68,10 +93,12 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* The deep PEN logo red, shared with overdue highlights. */
+  --destructive: #b31b1a;
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Focus outlines in the PEN logo blue, matching the main buttons. */
+  --ring: #0269af;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
