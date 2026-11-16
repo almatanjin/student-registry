@@ -120,6 +120,42 @@ describe("Student details are validated", () => {
     expect(await prisma.student.count()).toBe(1);
   });
 
+  test("Duplicate email alongside other field errors", async () => {
+    await create(newStudent());
+
+    const response = await create({ email: "AMARA.OKAFOR@sms.example" });
+
+    expect(response.status).toBe(400);
+    expect(((await response.json()) as ErrorJson).error.fields).toMatchObject({
+      email: "This email is already in use",
+      fullName: "Enter the full name",
+    });
+    expect(await prisma.student.count()).toBe(1);
+  });
+
+  test("a duplicate email on edit is reported alongside other field errors", async () => {
+    await create(newStudent());
+    const { student } = (await (await create(newStudent({ email: "second@sms.example" }))).json()) as {
+      student: StudentJson;
+    };
+
+    const response = await update(student.id, { email: "Amara.Okafor@sms.example", fullName: "" });
+
+    expect(response.status).toBe(400);
+    expect(((await response.json()) as ErrorJson).error.fields).toEqual({
+      email: "This email is already in use",
+      fullName: "Enter the full name",
+    });
+  });
+
+  test("a student's own email is not reported as taken when other fields are invalid", async () => {
+    const { student } = (await (await create(newStudent())).json()) as { student: StudentJson };
+
+    const response = await update(student.id, { email: "amara.okafor@sms.example", fullName: "" });
+
+    expect(((await response.json()) as ErrorJson).error.fields).toEqual({ fullName: "Enter the full name" });
+  });
+
   test("an email used by a staff account is also taken", async () => {
     await createStaffAccount("registrar@sms.example");
 

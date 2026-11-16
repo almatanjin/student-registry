@@ -1,3 +1,4 @@
+import type { ZodError } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { formatAcademicYear } from "@/domain/academic-year";
 import {
@@ -11,7 +12,7 @@ import { hashPassword } from "@/server/auth/password";
 import { billStudent } from "@/server/fees/billing";
 import { today } from "@/server/config";
 import { prisma } from "@/server/db";
-import { ConflictError, NotFoundError, ValidationError } from "@/server/http/errors";
+import { ConflictError, NotFoundError, ValidationError, fieldErrorsFromZod } from "@/server/http/errors";
 
 type Tx = Prisma.TransactionClient;
 
@@ -66,6 +67,32 @@ async function assertEmailFree(tx: Tx, email: string, exceptUserId?: string) {
   if (existing && existing.id !== exceptUserId) throw new ConflictError("duplicate_email", DUPLICATE_EMAIL, "email");
 }
 
+async function isEmailTaken(email: string, exceptUserId?: string): Promise<boolean> {
+  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  return existing !== null && existing.id !== exceptUserId;
+}
+
+/**
+ * Validates a create or edit body. When other fields are invalid, a taken email is still reported
+ * on the email field, so staff see every problem in one go instead of fixing the form twice.
+ */
+async function parseStudentBody<T>(
+  schema: { safeParse(body: unknown): { success: true; data: T } | { success: false; error: ZodError } },
+  body: unknown,
+  ownerUserId?: () => Promise<string | undefined>,
+): Promise<T> {
+  const parsed = schema.safeParse(body);
+  if (parsed.success) return parsed.data;
+
+  const fields = fieldErrorsFromZod(parsed.error);
+  const rawEmail = typeof body === "object" && body !== null ? (body as { email?: unknown }).email : undefined;
+  if (!fields.email && rawEmail !== undefined) {
+    const email = createStudentSchema(today()).shape.email.safeParse(rawEmail);
+    if (email.success && (await isEmailTaken(email.data, await ownerUserId?.()))) fields.email = DUPLICATE_EMAIL;
+  }
+  throw new ValidationError(fields);
+}
+
 async function assertProgrammeExists(tx: Tx, programmeId: string) {
   const programme = await tx.programme.findUnique({ where: { id: programmeId }, select: { id: true } });
   if (!programme) throw new ValidationError({ programmeId: "Choose a programme" });
@@ -86,7 +113,7 @@ export async function nextStudentNumber(tx: Tx, academicYearStart: number): Prom
 }
 
 export async function createStudent(body: unknown): Promise<StudentView> {
-  const input = createStudentSchema(today()).parse(body);
+  const input = await parseStudentBody(createStudentSchema(today()), body);
   const passwordHash = await hashPassword(input.initialPassword);
 
   try {
@@ -122,7 +149,10 @@ export async function createStudent(body: unknown): Promise<StudentView> {
 }
 
 export async function updateStudent(id: string, body: unknown): Promise<StudentView> {
-  const input = updateStudentSchema(today()).parse(body);
+  const input = await parseStudentBody(updateStudentSchema(today()), body, async () => {
+    const student = await prisma.student.findUnique({ where: { id }, select: { userId: true } });
+    return student?.userId;
+  });
 
   try {
     const row = await prisma.$transaction(async (tx) => {

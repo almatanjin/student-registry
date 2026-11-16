@@ -27,6 +27,10 @@ The academic year SHALL be written as a start and end year one apart, such as `2
 - **WHEN** staff create or edit a student using an email that another account already has, in any letter case
 - **THEN** the change is rejected with "This email is already in use"
 
+#### Scenario: Duplicate email alongside other field errors
+- **WHEN** staff submit the form with an email that another account already has and other fields missing or invalid
+- **THEN** "This email is already in use" is shown on the email field together with the other fields' messages
+
 #### Scenario: Date of birth in the future
 - **WHEN** staff enter a date of birth that is today or later
 - **THEN** the change is rejected with a message on the date of birth field

@@ -110,6 +110,16 @@ test.describe("Staff create a student record", () => {
     await expect(page.getByText("This email is already in use")).toBeVisible();
   });
 
+  test("Duplicate email alongside other field errors", async ({ page }) => {
+    await page.goto("/staff/students/new");
+    await page.getByLabel("Email").fill(STUDENT.email.toUpperCase());
+    await page.getByRole("button", { name: "Create student" }).click();
+
+    await expect(page.getByLabel("Email")).toHaveAccessibleDescription("This email is already in use");
+    await expect(page.getByLabel("Full name")).toHaveAccessibleDescription("Enter the full name");
+    await expect(page).toHaveURL(/\/staff\/students\/new$/);
+  });
+
   test("Valid new student", async ({ page }) => {
     await page.goto("/staff/students");
     await page.getByRole("link", { name: "Add student" }).click();

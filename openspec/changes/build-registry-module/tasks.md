@@ -42,6 +42,7 @@
 - [x] 4.7 Build the read-only student profile page, and verify a Playwright test that a signed-in Student sees their own details with no edit controls and is sent back to their own pages when opening the staff student list
 - [x] 4.8 Run lint, type checking, and the unit, integration, and Playwright suites, and verify all pass with no retries before starting the next group
 - [x] 4.9 Make the student list search as staff type and apply filters on change, with no Search button, and verify a Playwright test that typing alone narrows the list while the search box keeps focus
+- [x] 4.10 Report a duplicate email together with the other field errors when creating or editing a student, and verify an integration test and a Playwright test that a duplicate email with missing fields shows "This email is already in use" on the email field
 
 ## 5. Fees and payments
 
