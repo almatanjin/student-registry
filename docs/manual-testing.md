@@ -120,7 +120,9 @@ Every API error comes back as `{ "error": { "code", "message", "fields" } }`, bu
 | `src/server/storage/` | File storage interface and the local-disk version (files go to `UPLOAD_DIR`) |
 | `src/server/db.ts` | The shared Prisma client |
 | `src/server/config.ts` | Reads `APP_TIMEZONE` and `APP_CURRENCY` |
-| `src/components/` | Shared UI: app shell (navigation, Change password, Sign out), badges, page header, fee tables |
+| `src/components/` | Shared UI: the shell (`app-shell.tsx`, `sidebar-content.tsx`, `nav-links.tsx`, `phone-menu.tsx`), dashboard tiles, badges, page header, fee tables |
+| `src/server/dashboard/service.ts` | The four figures on the staff dashboard cards |
+| `public/pen-mark.svg` | The PEN circles used in the sidebar and on the sign-in page |
 | `src/components/ui/` | shadcn/ui building blocks (button, input, table, and so on) |
 | `src/lib/format.ts` | Money and date formatting |
 | `tests/integration/` | API tests against the `registry_test` database |
@@ -150,10 +152,22 @@ Every API error comes back as `{ "error": { "code", "message", "fields" } }`, bu
 
 - [ ] **Staff sign-in.**
   Sign in as `registrar@sms.example`.
-  Expected: you land on the Registry dashboard, and the navigation shows Dashboard, Students, Assessments, Results, Programmes.
+  Expected: you land on the Registry dashboard, and the left sidebar shows the PEN circles, "Student Registry", "Staff", and the links Dashboard, Students, Assessments, Results, Programmes, with Dashboard highlighted.
 - [ ] **Student sign-in.**
   Sign in as `amara.okafor@students.sms.example`.
-  Expected: you land on "Your assessments", and the navigation shows only student pages.
+  Expected: you land on Assessments, and the sidebar shows "Student" and only Assessments, Marksheet, Fees, Profile.
+- [ ] **Sign-in page brand.**
+  Sign out and look at the sign-in page.
+  Expected: the PEN circles and "Student Registry" sit above a form titled "Sign in", and the "Sign in" button is the logo blue.
+- [ ] **Current page inside a section.**
+  As staff, open a student and then their fees page.
+  Expected: Students stays highlighted in the sidebar.
+- [ ] **Sidebar footer.**
+  Expected: the bottom of the sidebar shows your email, "Signed in as staff" or "Signed in as student", "Change password", and "Sign out".
+  A long email is shortened with "…" and shows in full when you hover over it.
+- [ ] **Phone menu.**
+  At 375 px wide, the sidebar is replaced by a top bar with a "Menu" button.
+  Expected: "Menu" opens the sidebar over the page; choosing a link opens that page and closes the menu; "Close menu", Escape, or tapping outside closes it without changing page.
 - [ ] **Student sees their own record.**
   As Amara, open Profile.
   Expected: Amara's name and Student ID are shown, with no edit controls.
@@ -211,7 +225,7 @@ If you change the password of a seeded account, re-run the seed afterwards to se
 
 - [ ] **New student must change the initial password.**
   As staff, add a student with an initial password, then sign in as that student.
-  Expected: the change-password page with "Choose a new password before you continue", no navigation, and a "Sign out" button.
+  Expected: the change-password page with "Choose a new password before you continue", no sidebar or navigation, and a "Sign out" button.
 - [ ] **Cannot skip the change.**
   While on that page, open `/student/assessments`, `/student/fees`, `/`, and `/sign-in`.
   Expected: each one sends you back to the change-password page.
@@ -232,7 +246,7 @@ If you change the password of a seeded account, re-run the seed afterwards to se
 
 - [ ] **Finding the page.**
   As staff and as a student, click "Change password" in the header.
-  Expected: the change-password page, showing "Signed in as" with your email and a "Back to the registry" link to your home page.
+  Expected: the change-password page, showing "Signed in as" with your email, with the sidebar still beside it so you can go to any of your pages.
 - [ ] **Change your password any time.**
   Enter your current password and a new password twice, then click "Change password".
   Expected: you stay on the change-password page, still signed in, and see "Your password has been changed".
@@ -421,6 +435,16 @@ Re-run the seed after this section.
 - [ ] **Instalment states.**
   On a fees page with a mix of instalments, check the state of each.
   Expected: paid instalments show as paid, past-due unpaid ones as overdue, and future ones as upcoming, in due-date order.
+- [ ] **Dashboard cards.**
+  Open Dashboard.
+  Expected: four cards above the overdue list.
+  Enrolled students shows the Enrolled count with the other statuses below it, and opens the student list filtered to Enrolled.
+  Overdue balances shows how many students are overdue and the total, and jumps to the overdue list.
+  Fees collected shows the share of billed fees paid (rounded down) with both totals.
+  Results to publish shows how many results are complete and still Pending, and opens Results.
+- [ ] **Cards follow the records.**
+  Record a payment, then open Dashboard.
+  Expected: Fees collected (and Overdue balances, if it cleared an overdue amount) already include it.
 - [ ] **Overdue on the dashboard.**
   Open Dashboard.
   Expected: Fatima Hassan and Sofia Rossi are listed with their overdue amounts, highest first.
@@ -644,10 +668,11 @@ This repeats the end-to-end flow in `e2e/journey.spec.ts` by hand.
 
 | File | Why |
 |---|---|
-| `src/app/theme.css` | Button colour, rounding, and fonts |
+| `src/app/theme.css` | Button colour, rounding, fonts, sidebar and tile colours, and the status pill tones |
 | `src/app/globals.css` | Full palette and base styles |
 | `src/components/ui/button.tsx` | How buttons use the theme settings |
-| `src/components/page-header.tsx`, `app-shell.tsx` | Page titles and the top navigation |
+| `src/components/status-badge.tsx` | `Pill` and its `tone` prop, used by every status badge |
+| `src/components/page-header.tsx`, `app-shell.tsx`, `sidebar-content.tsx`, `phone-menu.tsx` | Page titles, the sidebar, and the phone menu |
 
 ### Test cases
 
@@ -657,14 +682,16 @@ This repeats the end-to-end flow in `e2e/journey.spec.ts` by hand.
 - [ ] **Empty states.**
   Check that every list has a clear message when empty (for example a search with no matches, or a student with no payments).
 - [ ] **Badges.**
-  Expected: enrolment statuses, Late submissions, overdue amounts, and result states use consistent badges across pages.
+  Expected: every pill uses the tone for its meaning on every page: green for Enrolled, On time, Paid, Published, Pass; yellow for Deferred and Late; red for Overdue and Fail; blue for Completed and Merit; purple for Distinction and Withheld; light blue for Pending, Open, Upcoming; grey for Withdrawn, Not submitted, Closed.
+- [ ] **Highlights.**
+  Expected: the late row and "Late" count on an assessment are yellow, and overdue instalment rows and the overdue box on a fees page are red.
 - [ ] **Keyboard.**
   Use Tab to move through the sign-in form, the change-password form, the student filters, and the payment form.
   Expected: focus is visible and every control is reachable.
 - [ ] **Theme change.**
-  In `src/app/theme.css`, set `--app-button-background: #2563eb;` and save.
-  Expected: every main button turns blue without restarting.
-  Undo the change afterwards.
+  In `src/app/theme.css`, set `--app-button-background: #844393;` and `--app-tone-green: #cfe4f6;`, and save.
+  Expected: every main button turns purple and every green pill turns light blue, without restarting.
+  Undo the changes afterwards.
 
 ## 10. Automated checks
 

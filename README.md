@@ -84,7 +84,10 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 
 **Staff**
 
-- **Dashboard:** every student with an overdue balance, highest amount first, whatever their enrolment status.
+- **Dashboard:**
+  - Four summary cards, each worked out from current records: Enrolled students (with the other statuses), Overdue balances, Fees collected (the share of all billed fees paid, rounded down), and Results to publish (complete results still Pending).
+    Each card except Fees collected links to where its detail lives.
+  - Below them, every student with an overdue balance, highest amount first, whatever their enrolment status.
 - **Students:**
   - Search by name or Student ID and filter by programme and status. The filters live in the URL, so they survive a reload.
   - Create and edit student records. The Student ID (`SMS-2026-0001`) is generated, unique, and never changes.
@@ -104,6 +107,15 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 - Their fees, with any overdue amount highlighted.
 - Their profile, read-only.
 - Changing their password, which is required at the first sign-in after staff set or reset it.
+
+**Everyone**
+
+- A left sidebar with the PEN circles, "Student Registry", the role, and that role's pages with icons; the current section is highlighted.
+  Its footer shows who is signed in, with "Change password" and "Sign out".
+- On phones the sidebar folds behind a "Menu" button in a top bar, and opens over the page.
+- The sign-in page shows the PEN circles and "Student Registry" above the form.
+- Colours come from the PEN logo: main buttons in the logo blue, and every status pill in one tone per meaning (green for done, yellow for needs attention, red for a problem, blue for finished, purple for special or held, light blue for waiting, grey for inactive).
+  `src/app/theme.css` holds these colours, the button style, and the fonts, so they can be changed in one place.
 
 ## Product decisions and assumptions
 
@@ -149,9 +161,10 @@ The brief leaves some rules open; these are the choices made, and why.
 ## How it is built
 
 - `src/domain/`: pure business rules with no database access (Student IDs, academic years, instalment dates, balances, submission rules, classification, publishing rules), covered by unit tests.
-- `src/server/`: one service per area (students, fees, assessments, submissions, results), plus authentication, file storage, and the shared error handling.
+- `src/server/`: one service per area (students, fees, assessments, submissions, results, and the dashboard figures), plus authentication, file storage, and the shared error handling.
 - `src/app/api/`: Route Handlers that check the session and role, validate input with Zod, and call a service. Every error comes back as `{ "error": { "code", "message", "fields" } }`.
 - `src/app/staff/` and `src/app/student/`: the pages for each role, built with Tailwind CSS and shadcn/ui.
+- `src/components/`: the shared shell (`app-shell.tsx`, `sidebar-content.tsx`, `nav-links.tsx`, `phone-menu.tsx`), the dashboard tiles (`stat-tile.tsx`), and the status badges, which all draw their colours from `src/app/theme.css`.
 - `prisma/schema.prisma` and `prisma/migrations/`: the data model, with database checks for grade range and positive amounts. `docs/database-schema.md` has a diagram.
 - `prisma/seed.ts` and `prisma/seed/`: the demo data.
 
