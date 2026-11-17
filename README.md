@@ -185,8 +185,8 @@ The tests that add data of their own (new students, changed passwords, published
 
 ## How AI was used
 
-I led this project and used Claude Code (Anthropic) as a pair programmer.
-I set up how the work was done, made the product and design decisions, and reviewed and tested the result.
+I built this project with Claude Code (Anthropic) as my pair programmer, and I stayed in charge of every step.
+I decided how every feature should behave, set the rules for how the code had to be planned, written, tested, and checked the critical parts myself.
 
 - **Setting up the workflow:** before any code was written, I set up the rules the AI had to follow in `AGENTS.md`: plan every feature as an OpenSpec change first, build it test-first, give every user-facing behaviour a Playwright test, and fix lint errors and flaky tests when they appear.
   I also added the OpenSpec workflow and the test-driven development skill to the project.
