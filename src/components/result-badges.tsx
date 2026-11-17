@@ -1,7 +1,8 @@
 import { Pill, type Tone } from "@/components/status-badge";
 import { RESULT_STATE_LABELS, type Classification, type ResultState } from "@/domain/results";
 
-const CLASSIFICATION: Record<Classification, Tone> = {
+/** The pill colour for each classification, shared by the badges and the grade bands legend. */
+export const CLASSIFICATION_TONES: Record<Classification, Tone> = {
   Distinction: "purple",
   Merit: "blue",
   Pass: "green",
@@ -15,7 +16,7 @@ const STATE: Record<ResultState, Tone> = {
 };
 
 export function ClassificationBadge({ classification }: { classification: Classification }) {
-  return <Pill tone={CLASSIFICATION[classification]}>{classification}</Pill>;
+  return <Pill tone={CLASSIFICATION_TONES[classification]}>{classification}</Pill>;
 }
 
 export function ResultStateBadge({ state }: { state: ResultState }) {
