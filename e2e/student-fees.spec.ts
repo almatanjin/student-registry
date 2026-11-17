@@ -127,7 +127,8 @@ test.describe("Students view their own fees", () => {
     await page.goto("/staff/programmes");
 
     const msc = page.getByRole("region", { name: "MSc Data Science fee plan" });
-    await expect(msc.getByRole("row")).toHaveCount(3);
+    // A header row, the two instalments, and the Total row.
+    await expect(msc.getByRole("row")).toHaveCount(4);
     await expect(msc).toContainText("1 October");
     await expect(msc).toContainText("£6,000.00");
     await context.close();
