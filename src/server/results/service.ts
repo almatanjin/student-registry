@@ -74,20 +74,18 @@ export async function setResultState(studentId: string, moduleId: string, body: 
   return prisma.$transaction(async (tx) => {
     const [student, module_] = await Promise.all([
       tx.student.findUnique({ where: { id: studentId }, select: { programmeId: true } }),
-      tx.module.findUnique({
-        where: { id: moduleId },
-        select: { programmeId: true, assessments: { select: { id: true, title: true }, orderBy: { title: "asc" } } },
-      }),
+      tx.module.findUnique({ where: { id: moduleId }, select: { programmeId: true } }),
     ]);
     if (!student || !module_ || module_.programmeId !== student.programmeId) throw new NotFoundError();
     await lockStudent(tx, studentId);
 
     if (state === "PUBLISHED") {
-      const graded = await tx.grade.findMany({
-        where: { studentId, assessment: { moduleId } },
-        select: { assessmentId: true },
-      });
-      const missing = missingGrades(module_.assessments, new Set(graded.map((grade) => grade.assessmentId)));
+      // Read the assessments only after the lock, so one created a moment ago is included.
+      const [assessments, graded] = await Promise.all([
+        tx.assessment.findMany({ where: { moduleId }, select: { id: true, title: true }, orderBy: { title: "asc" } }),
+        tx.grade.findMany({ where: { studentId, assessment: { moduleId } }, select: { assessmentId: true } }),
+      ]);
+      const missing = missingGrades(assessments, new Set(graded.map((grade) => grade.assessmentId)));
       if (missing === null) {
         throw new ConflictError("incomplete_results", "Results cannot be published yet: this module has no assessments");
       }
@@ -108,15 +106,14 @@ export async function setResultState(studentId: string, moduleId: string, body: 
 /** Publishes every student on the module whose results are Pending and complete; everyone else is left as they are. */
 export async function publishModule(moduleId: string): Promise<{ published: number; skipped: number; message: string }> {
   return prisma.$transaction(async (tx) => {
-    const module_ = await tx.module.findUnique({
-      where: { id: moduleId },
-      select: { programmeId: true, assessments: { select: { id: true, title: true } } },
-    });
+    const module_ = await tx.module.findUnique({ where: { id: moduleId }, select: { programmeId: true } });
     if (!module_) throw new NotFoundError();
 
-    // Lock the programme's students so no grade changes underneath the completeness checks.
+    // Lock the programme's students so no grade changes underneath the completeness checks,
+    // and read the assessments after the lock so one created a moment ago is included.
     await tx.$queryRaw`SELECT id FROM "Student" WHERE "programmeId" = ${module_.programmeId} ORDER BY id FOR UPDATE`;
-    const [students, grades, results] = await Promise.all([
+    const [assessments, students, grades, results] = await Promise.all([
+      tx.assessment.findMany({ where: { moduleId }, select: { id: true, title: true } }),
       tx.student.findMany({ where: { programmeId: module_.programmeId }, select: { id: true } }),
       tx.grade.findMany({ where: { assessment: { moduleId } }, select: { studentId: true, assessmentId: true } }),
       tx.moduleResult.findMany({ where: { moduleId }, select: { studentId: true, state: true } }),
@@ -131,7 +128,7 @@ export async function publishModule(moduleId: string): Promise<{ published: numb
 
     const toPublish = students.filter((student) => {
       if ((stateOf.get(student.id) ?? "PENDING") !== "PENDING") return false;
-      const missing = missingGrades(module_.assessments, gradedBy.get(student.id) ?? new Set());
+      const missing = missingGrades(assessments, gradedBy.get(student.id) ?? new Set());
       return missing !== null && missing.length === 0;
     });
     for (const student of toPublish) {

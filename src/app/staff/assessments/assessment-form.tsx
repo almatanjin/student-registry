@@ -10,7 +10,17 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOptGroup, NativeSelectOption } from "@/components/ui/native-select";
 import { callApi } from "@/lib/api-client";
 
-type ModuleGroup = { programme: string; modules: { id: string; label: string }[] };
+/** A module staff can choose, with how many of its results are Published now. */
+export type ModuleOption = { id: string; code: string; label: string; publishedCount: number };
+
+type ModuleGroup = { programme: string; modules: ModuleOption[] };
+
+/** "1 published CS101 result will return to Pending.", or null when nothing would change. */
+function reopenWarning(option: ModuleOption | undefined): string | null {
+  if (!option || option.publishedCount === 0) return null;
+  const results = option.publishedCount === 1 ? "result" : "results";
+  return `${option.publishedCount} published ${option.code} ${results} will return to Pending.`;
+}
 
 type AssessmentFormProps =
   | { mode: "create"; moduleGroups: ModuleGroup[]; timeZone: string }
@@ -21,6 +31,11 @@ export function AssessmentForm(props: AssessmentFormProps) {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [moduleId, setModuleId] = useState("");
+  const warning =
+    props.mode === "create"
+      ? reopenWarning(props.moduleGroups.flatMap((group) => group.modules).find((option) => option.id === moduleId))
+      : null;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +69,18 @@ export function AssessmentForm(props: AssessmentFormProps) {
       </FormField>
       {props.mode === "create" ? (
         <FormField id="moduleId" label="Module" error={fields.moduleId}>
-          <NativeSelect id="moduleId" name="moduleId" defaultValue="" className="w-full" {...errorProps("moduleId", fields.moduleId)}>
+          <NativeSelect
+            id="moduleId"
+            name="moduleId"
+            value={moduleId}
+            onChange={(event) => setModuleId(event.target.value)}
+            className="w-full"
+            {...errorProps("moduleId", fields.moduleId)}
+            aria-describedby={
+              [fields.moduleId ? "moduleId-error" : null, warning ? "moduleId-warning" : null].filter(Boolean).join(" ") ||
+              undefined
+            }
+          >
             <NativeSelectOption value="">Choose a module</NativeSelectOption>
             {props.moduleGroups.map((group) => (
               <NativeSelectOptGroup key={group.programme} label={group.programme}>
@@ -66,6 +92,11 @@ export function AssessmentForm(props: AssessmentFormProps) {
               </NativeSelectOptGroup>
             ))}
           </NativeSelect>
+          {warning ? (
+            <p id="moduleId-warning" className="text-xs text-tone-yellow-foreground">
+              {warning} Students see &quot;Results not yet released&quot; until the new assessment is graded and published again.
+            </p>
+          ) : null}
         </FormField>
       ) : null}
       <FormField id="deadline" label="Submission deadline" error={fields.deadline} hint={`Date and time in ${props.timeZone}.`}>

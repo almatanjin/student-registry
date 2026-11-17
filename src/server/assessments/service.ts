@@ -79,13 +79,24 @@ const byDeadline = { deadline: "asc" } as const;
 
 export async function createAssessment(body: unknown): Promise<AssessmentView> {
   const input = createAssessmentSchema(new Date(), appTimeZone()).parse(body);
-  const moduleRow = await prisma.module.findUnique({ where: { id: input.moduleId }, select: { id: true } });
-  if (!moduleRow) throw new ValidationError({ moduleId: "Choose a module" });
-  const row = await prisma.assessment.create({
-    data: { title: input.title, moduleId: input.moduleId, deadline: input.deadline },
-    select: assessmentSelect,
+  return prisma.$transaction(async (tx) => {
+    const moduleRow = await tx.module.findUnique({ where: { id: input.moduleId }, select: { programmeId: true } });
+    if (!moduleRow) throw new ValidationError({ moduleId: "Choose a module" });
+
+    // Same lock, in the same order, as publishing, so a publish cannot slip in between the new
+    // assessment and the reset below and leave a Published result without a grade for it.
+    await tx.$queryRaw`SELECT id FROM "Student" WHERE "programmeId" = ${moduleRow.programmeId} ORDER BY id FOR UPDATE`;
+    const row = await tx.assessment.create({
+      data: { title: input.title, moduleId: input.moduleId, deadline: input.deadline },
+      select: assessmentSelect,
+    });
+    // Published results are no longer complete, so they go back to Pending; Withheld stays Withheld.
+    await tx.moduleResult.updateMany({
+      where: { moduleId: input.moduleId, state: "PUBLISHED" },
+      data: { state: "PENDING" },
+    });
+    return toView(row);
   });
-  return toView(row);
 }
 
 export async function updateAssessment(id: string, body: unknown): Promise<AssessmentView> {
@@ -175,7 +186,14 @@ export async function getAssessmentRoster(id: string): Promise<{ assessment: Ass
 export function listModuleOptions() {
   return prisma.module.findMany({
     orderBy: [{ programme: { name: "asc" } }, { code: "asc" }],
-    select: { id: true, code: true, title: true, programme: { select: { name: true } } },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      programme: { select: { name: true } },
+      // Published results return to Pending when an assessment is added, so the form warns how many.
+      _count: { select: { moduleResults: { where: { state: "PUBLISHED" } } } },
+    },
   });
 }
 
