@@ -82,104 +82,48 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 
 ## What it does
 
-**Staff**
+**Staff** see a dashboard with the key figures and every student with an overdue balance.
+They search and filter students by name, Student ID, programme, or status, create and edit records with a generated Student ID (`SMS-2026-0001`), and record payments against each student's fee.
+They set assessments, see every submission with late ones flagged, enter grades, and publish or withhold each student's results module by module.
 
-- **Dashboard:**
-  - Four summary cards, each worked out from current records: Enrolled students (with the other statuses), Overdue balances, Fees collected (the share of all billed fees paid, rounded down), and Results to publish (complete results still Pending).
-    Enrolled students opens the student list filtered to Enrolled, and Results to publish opens the Results page; Overdue balances and Fees collected are not links, since the overdue list sits just below the cards.
-  - Below them, every student with an overdue balance, highest amount first, whatever their enrolment status.
-- **Students:**
-  - Search by name or Student ID and filter by programme and status. The filters live in the URL, so they survive a reload.
-  - Create and edit student records. The Student ID (`SMS-2026-0001`) is generated, unique, and never changes.
-  - Each student has a fees page with instalments, payment history, balances, and a form to record payments.
-  - Student pages use the Student ID in the address, for example `/staff/students/SMS-2026-0001/fees`.
-  - Reset a student's password to a temporary one when they cannot sign in.
-- **Assessments:**
-  - Create assessments for a module with a deadline, then edit, close, or reopen them.
-  - See every student's submission, with late ones flagged, and download the files.
-  - Enter grades (0-100) next to each submission.
-- **Results:**
-  - Each module is a coloured card with its code, title, programme, number of assessments, and one pill that says what it needs next: "No assessments yet", "No students yet", "2 ready to publish", "Waiting for grades", "1 withheld", or "All published".
-    The "ready to publish" counts use the same rule as the dashboard's Results to publish card, so the two always agree.
-  - Inside a module, publish or withhold each student's results, or publish every complete result at once.
-- **Programmes:** a read-only card per programme with its coloured code badge, annual fee, fee plan (with the number of instalments and a Total row), and its modules as pills alternating blue and green.
+![Staff dashboard with the summary cards and the overdue balances list](docs/screenshots/staff-dashboard.png)
 
-**Students**
+**Students** see their assessments and upload a PDF or DOCX for each, their marksheet once results are published, their fees with any overdue amount highlighted, and their profile.
 
-- Their assessments as coloured cards, earliest deadline first, each with the deadline, a countdown ("In 10 days", "Due today", "7 days ago"), and the submission and open or closed state.
-  "Not submitted" turns red once the deadline has passed.
-- A page for each assessment to upload or replace their PDF or DOCX file.
-- Their marksheet as one table with the columns Module, Assessment, Grade, and Classification, showing grades only for modules whose results are published.
-  A "Bands:" legend under the title lists "Fail <40", "Pass 40+", "Merit 60+", and "Distinction 70+" in the same colours as the classification pills.
-  On phones the Module column gives way to a heading row above each module's results.
-- Their fees, with any overdue amount highlighted.
-- Their profile, read-only.
-- Changing their password, which is required at the first sign-in after staff set or reset it.
+![Student assessments as cards, with deadlines, countdowns, and submission states](docs/screenshots/student-assessments.png)
 
-**Everyone**
-
-- A left sidebar with the PEN circles, "Student Registry", the role, and that role's pages with icons; the current section is highlighted.
-  Its footer shows who is signed in, with "Change password" and "Sign out".
-- On phones the sidebar folds behind a "Menu" button in a top bar, and opens over the page.
-- The sign-in page shows the PEN circles and "Student Registry" above the form.
-- Colours come from the PEN logo: main buttons in the logo blue, and every status pill in one tone per meaning (green for done, yellow for needs attention, red for a problem, blue for finished, purple for special or held, light blue for waiting, grey for inactive).
-  The student Assessments cards and the staff Results cards take light yellow, purple, sky, blue, and green backgrounds in turn, and the module code badges on the student marksheet follow the same order.
-  `src/app/theme.css` holds these colours, the card colours, the button style, and the fonts, so they can be changed in one place.
+Both roles share a sidebar layout that folds into a menu on phones; colours and fonts are set in one place, `src/app/theme.css`.
 
 ## Product decisions and assumptions
 
-The brief leaves some rules open; these are the choices made, and why.
+The brief leaves some rules open; these are the main choices.
 
-- **Login:** email and password, with two roles (Staff and Student), checked on the server for every page and API route.
-  A student's sign-in email is their record's email, and staff set an initial password when they create the record.
-- **Passwords:**
-  - A student created in the app must choose a new password the first time they sign in; until then every other page sends them to the change-password page, and API routes answer 403.
-  - Anyone signed in can change their own password from "Change password" in the sidebar footer, by giving their current password and a new one of at least 8 characters.
-  - A student who forgets their password asks the Registry team, who set a temporary password from the student's record ("Reset password"); the student must change it at their next sign-in.
-  - Changing or resetting a password ends every older session, so a reset also signs the student out anywhere they were signed in.
-  - Seeded demo accounts are not asked to change their password, so the demo works straight away with `SEED_USER_PASSWORD`.
-- **Fees:** each programme has an annual fee split into dated instalments (for example 1 October, 15 January, 15 April).
-  - New students are billed from their programme's plan for their academic year, and later changes to a plan do not alter existing bills.
-  - A student is **overdue** when what they have paid is less than the instalments already due; an instalment becomes due the day after its due date.
-  - Balances are calculated from the recorded payments every time they are shown, so they are always current.
-  - Payments are applied to instalments in due-date order.
-- **Payments:**
-  - Reference numbers are unique, ignoring letter case.
-  - A payment cannot be dated in the future.
-  - A payment larger than the outstanding balance is rejected, because refunds are out of scope.
-  - Once a payment exists, the student's programme and academic year can no longer change.
-- **Academic year:** runs from 1 September to 31 August, entered and shown as `2025/26`.
-- **Submissions:**
-  - Only Enrolled students can submit, and only to an open assessment.
-  - Files are checked by their content as well as their name, and must be at most 10 MB.
-  - Before the deadline a new upload replaces the old one.
-  - After it, a first submission is accepted and marked late, but an existing one can no longer be replaced.
-  - Lateness is worked out from the stored time, so extending a deadline clears the late flag.
-  - Files are stored on local disk outside `public/`, behind a small storage interface so S3 could replace it later, and are only served to staff and to the student who submitted them.
-- **Grades:** whole numbers from 0 to 100, classified as Fail below 40, Pass from 40, Merit from 60, and Distinction from 70.
-- **Publishing:**
-  - Results are published or withheld per student per module.
-  - A module's results can only be published once the student has a grade for every assessment in it.
-  - "Publish all" skips withheld and incomplete results and reports how many it published and skipped.
-  - Pending and withheld results look the same to the student ("Results not yet released"), and their grades never leave the server.
-  - Changing a grade that is already published asks staff to confirm first.
-  - Adding an assessment to a module returns that module's published results to Pending, because they are no longer complete; withheld results stay withheld. The new-assessment form says how many will return to Pending before staff create it.
-- **Privacy of other students' data:** a student asking for another student's record, fees, file, or results gets a 404, so the record's existence is not revealed.
+- **Login:** email and password with two roles, checked on the server for every page and API route.
+  Staff set a student's first password, the student must change it at first sign-in, and staff can reset a forgotten one.
+- **Fees:** each programme has an annual fee split into dated instalments.
+  A student is **overdue** when they have paid less than the instalments already due; balances are always calculated from the recorded payments.
+  Payments need a unique reference, cannot be dated in the future, and cannot exceed the outstanding balance.
+- **Submissions:** only Enrolled students can submit, one file each, at most 10 MB, checked by content as well as name.
+  Before the deadline a new upload replaces the old one; after it, a first upload is accepted and flagged late, and an existing one is locked.
+- **Results:** grades are 0-100, classified Fail below 40, Pass from 40, Merit from 60, and Distinction from 70.
+  Results are published or withheld per student per module, and only once every assessment has a grade; adding an assessment returns published results to Pending.
+  Students see Pending and Withheld results the same way ("Results not yet released"), and those grades never leave the server.
+- **Privacy:** a student asking for another student's data gets a 404, so its existence is not revealed.
 
-**Out of scope:** a self-service "Forgot password?" email link, resetting staff passwords, user management, screens for editing programmes, modules, and fee plans (they come from the seed), editing or refunding payments, file version history, notifications, and deployment.
+**Out of scope:** a "Forgot password?" email, user management, screens for editing programmes and fee plans (they come from the seed), editing or refunding payments, notifications, and deployment.
 
 ## How it is built
 
-- `src/domain/`: pure business rules with no database access (Student IDs, academic years, instalment dates, balances, submission rules, classification, publishing rules), covered by unit tests.
-- `src/server/`: one service per area (students, fees, assessments, submissions, results, and the dashboard figures), plus authentication, file storage, and the shared error handling.
-- `src/app/api/`: Route Handlers that check the session and role, validate input with Zod, and call a service. Every error comes back as `{ "error": { "code", "message", "fields" } }`.
-- `src/app/staff/` and `src/app/student/`: the pages for each role, built with Tailwind CSS and shadcn/ui.
-- `src/components/`: the shared shell (`app-shell.tsx`, `sidebar-content.tsx`, `nav-links.tsx`, `phone-menu.tsx`), the dashboard tiles (`stat-tile.tsx`), the student assessment cards (`assessment-card.tsx`, with the corner drawings in `doodles.tsx`), the staff results cards (`module-result-card.tsx`), the marksheet grade bands legend (`grade-bands-legend.tsx`), and the status badges.
-  They all draw their colours from `src/app/theme.css`; both kinds of card and the marksheet module badges share one colour list in `card-colours.ts`.
-- `prisma/schema.prisma` and `prisma/migrations/`: the data model, with database checks for grade range and positive amounts. `docs/database-schema.md` has a diagram.
-- `prisma/seed.ts` and `prisma/seed/`: the demo data.
+- `src/domain/`: pure business rules (Student IDs, instalments, balances, submission rules, classification, publishing), covered by unit tests.
+- `src/server/`: one service per area, plus authentication, file storage, and error handling.
+- `src/app/api/`: Route Handlers for students, fees and payments, assessments and submissions, grades, and results.
+  Each checks the session and role, validates input with Zod, calls a service, and returns errors as `{ "error": { "code", "message", "fields" } }`.
+- `src/app/`: the pages, React Server Components that load their own data on the server.
+  Only forms, filters, and inline actions are Client Components; after a change they call an API route and refresh the page, so there is no client-side store or cache to keep in sync.
+- `src/components/`: the shared layout and UI, built with shadcn/ui and Tailwind CSS.
+- `prisma/`: the schema, migrations, and seed data; `docs/database-schema.md` has a diagram.
 
-Race conditions are handled in the database: Student IDs come from an atomic counter, and payments, grade changes, publishing, and uploads lock the student's row, so two requests at the same moment cannot produce duplicate IDs, overpayments, or orphaned files.
+Race conditions are handled in the database: Student IDs come from an atomic counter, and payments, grades, publishing, and uploads lock the student's row.
 
 ## API routes
 
@@ -188,7 +132,7 @@ Race conditions are handled in the database: Student IDs come from an atomic cou
 | `GET, POST /api/students` | Staff | List (with `q`, `programmeId`, `status`) or create students |
 | `GET /api/students/[id]` | Staff, the student | Read a student record |
 | `PATCH /api/students/[id]` | Staff | Edit a student record |
-| `PUT /api/students/[id]/password` | Staff | Set a temporary password the student must change (`{ "temporaryPassword" }`, answers 204) |
+| `PUT /api/students/[id]/password` | Staff | Set a temporary password the student must change |
 | `GET /api/students/[id]/fees` | Staff, the student | Bill, balances, and payment history |
 | `POST /api/students/[id]/payments` | Staff | Record a payment |
 | `GET /api/assessments` | Staff, students | All assessments with counts, or a student's own |
@@ -200,6 +144,25 @@ Race conditions are handled in the database: Student IDs come from an atomic cou
 | `PUT /api/students/[id]/modules/[moduleId]/result` | Staff | Publish, withhold, or return results to pending |
 | `POST /api/modules/[id]/publish` | Staff | Publish every complete, pending result on a module |
 | `GET /api/students/[id]/results` | Staff, the student | The student's marksheet (published modules only) |
+
+## React components and state
+
+**Server Components:** all pages and layouts.
+They run on the server, check who is signed in, and load their data directly from `src/server/`.
+The browser gets ready HTML, and no data is fetched or cached in the browser.
+
+**Client Components (`"use client"`):** only the parts the user interacts with.
+
+- Forms: add or edit a student, record a payment, create an assessment, upload a file, sign in, and change password.
+- Inline actions: enter a grade, publish or withhold results, and close or reopen an assessment.
+- Navigation: the student search and filters, the current-page highlight, and the phone menu.
+
+**State:**
+
+- There is no global store such as Redux or Context; each piece of state stays in the component that uses it.
+- Forms use `useState` for errors and the loading state; sign-in and change-password use `useActionState` with Server Actions.
+- After a change, a component calls the API and then `router.refresh()`, so the server draws the page again with fresh data.
+- The student search and filters live in the URL, so they survive a reload and can be shared as a link.
 
 ## Tests
 
