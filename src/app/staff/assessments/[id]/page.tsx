@@ -134,8 +134,8 @@ export default async function StaffAssessmentPage({ params }: PageProps<"/staff/
                           className="inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:underline"
                         >
                           <Download className="size-4 shrink-0" />
-                          <span className="break-all">{submission.originalName}</span>
-                          <span className="text-xs text-muted-foreground">({formatFileSize(submission.sizeBytes)})</span>
+                          <span className="break-words whitespace-normal">{submission.originalName}</span>
+                          <span className="text-xs whitespace-nowrap text-muted-foreground">({formatFileSize(submission.sizeBytes)})</span>
                         </a>
                       ) : null}
                     </TableCell>

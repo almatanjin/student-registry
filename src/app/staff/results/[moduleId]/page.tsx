@@ -38,8 +38,9 @@ export default async function ModuleResultsPage({ params }: PageProps<"/staff/re
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
+                  <TableHead className="hidden @md:table-cell @4xl:hidden">Grades</TableHead>
                   {view.assessments.map((assessment) => (
-                    <TableHead key={assessment.id} className="hidden md:table-cell">
+                    <TableHead key={assessment.id} className="hidden @4xl:table-cell">
                       <Link href={`/staff/assessments/${assessment.id}`} className="underline-offset-4 hover:underline">
                         {assessment.title}
                       </Link>
@@ -55,14 +56,34 @@ export default async function ModuleResultsPage({ params }: PageProps<"/staff/re
                     <TableCell className="align-top whitespace-normal">
                       <span className="font-medium">{row.student.fullName}</span>
                       <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="font-mono">{row.student.studentNumber}</span>
+                        <span className="font-mono @md:whitespace-nowrap">{row.student.studentNumber}</span>
                         {row.student.status !== "ENROLLED" ? <StatusBadge status={row.student.status} /> : null}
                       </div>
+                    </TableCell>
+                    {/* Narrower content areas list every grade in one column, so Result and Actions still fit. */}
+                    <TableCell className="hidden align-top @md:table-cell @4xl:hidden">
+                      <ul className="grid gap-1.5">
+                        {view.assessments.map((assessment) => {
+                          const grade = row.grades[assessment.id];
+                          return (
+                            <li key={assessment.id} className="grid gap-0.5">
+                              <span className="text-xs whitespace-normal text-muted-foreground">{assessment.title}</span>
+                              {grade ? (
+                                <span className="flex items-center gap-1.5 tabular-nums">
+                                  {grade.value} <ClassificationBadge classification={grade.classification} />
+                                </span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">No grade</span>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
                     </TableCell>
                     {view.assessments.map((assessment) => {
                       const grade = row.grades[assessment.id];
                       return (
-                        <TableCell key={assessment.id} className="hidden align-top md:table-cell">
+                        <TableCell key={assessment.id} className="hidden align-top @4xl:table-cell">
                           {grade ? (
                             <span className="flex items-center gap-1.5 tabular-nums">
                               {grade.value} <ClassificationBadge classification={grade.classification} />

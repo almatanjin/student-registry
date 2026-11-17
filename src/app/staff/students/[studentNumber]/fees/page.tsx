@@ -40,7 +40,7 @@ export default async function StudentFeesPage({ params }: PageProps<"/staff/stud
       />
       <div className="grid gap-6">
         <FeeSummary fees={fees} />
-        <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div className="grid gap-6 @4xl:grid-cols-[1fr_22rem]">
           <div className="grid content-start gap-6">
             <InstalmentsCard fees={fees} />
             <PaymentHistoryCard fees={fees} />

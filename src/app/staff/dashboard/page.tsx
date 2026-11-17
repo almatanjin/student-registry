@@ -82,35 +82,35 @@ export default async function StaffDashboardPage() {
             <Table aria-label="Overdue balances">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="hidden sm:table-cell">Student ID</TableHead>
+                  <TableHead className="hidden @xl:table-cell">Student ID</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead className="hidden lg:table-cell">Programme</TableHead>
-                  <TableHead className="hidden md:table-cell">Status</TableHead>
+                  <TableHead className="hidden @4xl:table-cell">Programme</TableHead>
+                  <TableHead className="hidden @2xl:table-cell">Status</TableHead>
                   <TableHead className="text-right">Overdue</TableHead>
-                  <TableHead className="hidden sm:table-cell">Unpaid since</TableHead>
+                  <TableHead className="hidden @xl:table-cell">Unpaid since</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {overdue.map((entry) => (
                   <TableRow key={entry.id}>
-                    <TableCell className="hidden font-mono text-xs sm:table-cell">{entry.studentNumber}</TableCell>
+                    <TableCell className="hidden font-mono text-xs @xl:table-cell">{entry.studentNumber}</TableCell>
                     <TableCell>
                       <Link href={`/staff/students/${entry.studentNumber}/fees`} className="font-medium underline-offset-4 hover:underline">
                         {entry.fullName}
                       </Link>
-                      <div className="text-xs whitespace-normal text-muted-foreground lg:hidden">
-                        <span className="font-mono sm:hidden">{entry.studentNumber} · </span>
+                      <div className="text-xs whitespace-normal text-muted-foreground @4xl:hidden">
+                        <span className="font-mono @xl:hidden">{entry.studentNumber} · </span>
                         {entry.programmeName}
                       </div>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">{entry.programmeName}</TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden @4xl:table-cell">{entry.programmeName}</TableCell>
+                    <TableCell className="hidden @2xl:table-cell">
                       <StatusBadge status={entry.status} />
                     </TableCell>
                     <TableCell className="text-right font-medium text-tone-red-foreground tabular-nums">
                       {money(entry.overdueMinor)}
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDate(entry.earliestUnpaidDueDate)}</TableCell>
+                    <TableCell className="hidden @xl:table-cell">{formatDate(entry.earliestUnpaidDueDate)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

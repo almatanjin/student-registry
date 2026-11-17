@@ -41,6 +41,7 @@ export function RowActions({ studentId, moduleId, studentName, state, complete }
             key={action.next}
             size="sm"
             variant={action.next === "PUBLISHED" ? "default" : "outline"}
+            className="h-auto min-h-7 max-w-full shrink py-1 text-left whitespace-normal"
             disabled={pending || (action.next === "PUBLISHED" && !complete)}
             title={action.next === "PUBLISHED" && !complete ? "Every assessment needs a grade first" : undefined}
             onClick={() => void change(action.next)}
