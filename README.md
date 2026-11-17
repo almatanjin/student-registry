@@ -222,18 +222,20 @@ The tests that add data of their own (new students, changed passwords, published
 
 ## How AI was used
 
-This project was built with Claude Code (Anthropic) as a pair programmer, following a spec-first, test-first workflow set out in `AGENTS.md`.
+I led this project and used Claude Code (Anthropic) as a pair programmer.
+I set up how the work was done, made the product and design decisions, and reviewed and tested the result.
 
+- **Setting up the workflow:** before any code was written, I set up the rules the AI had to follow in `AGENTS.md`: plan every feature as an OpenSpec change first, build it test-first, give every user-facing behaviour a Playwright test, and fix lint errors and flaky tests when they appear.
+  I also added the OpenSpec workflow and the test-driven development skill to the project.
 - **Planning with OpenSpec:** the brief was turned into an OpenSpec change (`openspec/changes/build-registry-module/`) with a proposal, five capability specs written as testable scenarios, a design, and a task list.
   Before any code was written, the AI asked about the choices the brief leaves open, and I decided them: email and password login, fees in instalments, local file storage, and publishing per student per module.
-  I also asked it to stay close to the brief and not add extra features.
-- **Checking the plan:** the AI checked the plan against the brief and fixed the gaps it found, for example keeping database and demo passwords out of the repository.
-  At my request it also made Playwright tests part of the workflow.
 - **Building test-first:** each slice started with a failing test at one of three seams I approved (pure domain functions, API routes against a real test database, and Playwright in a real browser), then the code to pass it.
   Nothing internal is mocked; the only thing tests set is who is signed in.
-- **Reviewing the UI:** after each part, the AI took screenshots at desktop and phone widths and fixed problems it found, such as a table that cut off columns on phones and a confirmation message that disappeared after a late upload.
-- **Improving it after the first build:** each later improvement went through the same steps as its own OpenSpec change: password change and reset, the sidebar and dashboard summary cards, Student IDs in staff URLs, and the restyled Assessments, Results, and Marksheet pages.
-  For the three restyled pages, the AI first drew design mockups in explore mode, I picked a direction and adjusted it (for example, a transcript table for the marksheet with a grade bands legend in place of the description), and only then did it write the proposal, specs, and tasks.
+- **Improving it after the first build:** I chose each later improvement, and each went through the same steps as its own OpenSpec change: password change and reset, the sidebar and dashboard summary cards, Student IDs in staff URLs, and the restyled Assessments, Results, Marksheet, and Programmes pages.
+  For the restyled pages, the AI first drew design mockups, and I picked a direction and adjusted it before any plan was written.
+- **Final review against the brief:** I had the whole project tested against the brief by hand and with the full test suite.
+  When any bugs were found, I decided how each should be fixed.
 - **What I checked myself:** I reviewed the plan and the summary of each part, and decided every product question above.
+  I personally checked the crucial parts: authentication and authorization (sign-in, roles, and students reaching only their own data), result publishing and withholding, and the overdue fee logic.
 
 Each change's `tasks.md` under `openspec/changes/` shows the order its work was done in, starting with `build-registry-module`.
