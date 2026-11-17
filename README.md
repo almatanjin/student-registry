@@ -2,7 +2,7 @@
 
 The Registry module of a Student Management System.
 It covers the four workflows a Registry Administrator runs every day: student enrolment, fees and payments, assessment submissions, and marksheets with controlled release of results.
-It is built with Next.js (App Router), PostgreSQL, and Prisma.
+It is built with Next.js 16 (App Router), PostgreSQL, and Prisma 7.
 
 ## Prerequisites
 
@@ -92,18 +92,26 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
   - Search by name or Student ID and filter by programme and status. The filters live in the URL, so they survive a reload.
   - Create and edit student records. The Student ID (`SMS-2026-0001`) is generated, unique, and never changes.
   - Each student has a fees page with instalments, payment history, balances, and a form to record payments.
+  - Student pages use the Student ID in the address, for example `/staff/students/SMS-2026-0001/fees`.
   - Reset a student's password to a temporary one when they cannot sign in.
 - **Assessments:**
   - Create assessments for a module with a deadline, then edit, close, or reopen them.
   - See every student's submission, with late ones flagged, and download the files.
   - Enter grades (0-100) next to each submission.
-- **Results:** per module, publish or withhold each student's results, or publish every complete result at once.
+- **Results:**
+  - Each module is a coloured card with its code, title, programme, number of assessments, and one pill that says what it needs next: "No assessments yet", "No students yet", "2 ready to publish", "Waiting for grades", "1 withheld", or "All published".
+    The "ready to publish" counts use the same rule as the dashboard's Results to publish card, so the two always agree.
+  - Inside a module, publish or withhold each student's results, or publish every complete result at once.
 - **Programmes:** fee plans and modules, read-only.
 
 **Students**
 
-- Their assessments, with on-time, late, or missing state, and a page to upload or replace their PDF or DOCX file.
-- Their marksheet, which shows grades only for modules whose results are published.
+- Their assessments as coloured cards, earliest deadline first, each with the deadline, a countdown ("In 10 days", "Due today", "7 days ago"), and the submission and open or closed state.
+  "Not submitted" turns red once the deadline has passed.
+- A page for each assessment to upload or replace their PDF or DOCX file.
+- Their marksheet as one table with the columns Module, Assessment, Grade, and Classification, showing grades only for modules whose results are published.
+  A "Bands:" legend under the title lists "Fail <40", "Pass 40+", "Merit 60+", and "Distinction 70+" in the same colours as the classification pills.
+  On phones the Module column gives way to a heading row above each module's results.
 - Their fees, with any overdue amount highlighted.
 - Their profile, read-only.
 - Changing their password, which is required at the first sign-in after staff set or reset it.
@@ -115,7 +123,8 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 - On phones the sidebar folds behind a "Menu" button in a top bar, and opens over the page.
 - The sign-in page shows the PEN circles and "Student Registry" above the form.
 - Colours come from the PEN logo: main buttons in the logo blue, and every status pill in one tone per meaning (green for done, yellow for needs attention, red for a problem, blue for finished, purple for special or held, light blue for waiting, grey for inactive).
-  `src/app/theme.css` holds these colours, the button style, and the fonts, so they can be changed in one place.
+  The student Assessments cards and the staff Results cards take light yellow, purple, sky, blue, and green backgrounds in turn, and the module code badges on the student marksheet follow the same order.
+  `src/app/theme.css` holds these colours, the card colours, the button style, and the fonts, so they can be changed in one place.
 
 ## Product decisions and assumptions
 
@@ -125,7 +134,7 @@ The brief leaves some rules open; these are the choices made, and why.
   A student's sign-in email is their record's email, and staff set an initial password when they create the record.
 - **Passwords:**
   - A student created in the app must choose a new password the first time they sign in; until then every other page sends them to the change-password page, and API routes answer 403.
-  - Anyone signed in can change their own password from the "Change password" link in the header, by giving their current password and a new one of at least 8 characters.
+  - Anyone signed in can change their own password from "Change password" in the sidebar footer, by giving their current password and a new one of at least 8 characters.
   - A student who forgets their password asks the Registry team, who set a temporary password from the student's record ("Reset password"); the student must change it at their next sign-in.
   - Changing or resetting a password ends every older session, so a reset also signs the student out anywhere they were signed in.
   - Seeded demo accounts are not asked to change their password, so the demo works straight away with `SEED_USER_PASSWORD`.
@@ -164,7 +173,8 @@ The brief leaves some rules open; these are the choices made, and why.
 - `src/server/`: one service per area (students, fees, assessments, submissions, results, and the dashboard figures), plus authentication, file storage, and the shared error handling.
 - `src/app/api/`: Route Handlers that check the session and role, validate input with Zod, and call a service. Every error comes back as `{ "error": { "code", "message", "fields" } }`.
 - `src/app/staff/` and `src/app/student/`: the pages for each role, built with Tailwind CSS and shadcn/ui.
-- `src/components/`: the shared shell (`app-shell.tsx`, `sidebar-content.tsx`, `nav-links.tsx`, `phone-menu.tsx`), the dashboard tiles (`stat-tile.tsx`), and the status badges, which all draw their colours from `src/app/theme.css`.
+- `src/components/`: the shared shell (`app-shell.tsx`, `sidebar-content.tsx`, `nav-links.tsx`, `phone-menu.tsx`), the dashboard tiles (`stat-tile.tsx`), the student assessment cards (`assessment-card.tsx`, with the corner drawings in `doodles.tsx`), the staff results cards (`module-result-card.tsx`), the marksheet grade bands legend (`grade-bands-legend.tsx`), and the status badges.
+  They all draw their colours from `src/app/theme.css`; both kinds of card and the marksheet module badges share one colour list in `card-colours.ts`.
 - `prisma/schema.prisma` and `prisma/migrations/`: the data model, with database checks for grade range and positive amounts. `docs/database-schema.md` has a diagram.
 - `prisma/seed.ts` and `prisma/seed/`: the demo data.
 
@@ -206,7 +216,8 @@ npx playwright install chromium
 
 Other checks: `npm run lint` and `npm run typecheck`.
 
-The Playwright tests are named after the scenarios in the specs (`openspec/changes/build-registry-module/specs/`), and `e2e/journey.spec.ts` follows one student from enrolment to a released result across both roles.
+The Playwright tests are named after the scenarios in the specs under `openspec/changes/*/specs/`, and `e2e/journey.spec.ts` follows one student from enrolment to a released result across both roles.
+The tests that add data of their own (new students, changed passwords, published results) run after the ones that expect only the seeded data; `playwright.config.ts` sets this order.
 
 ## How AI was used
 
@@ -220,6 +231,8 @@ This project was built with Claude Code (Anthropic) as a pair programmer, follow
 - **Building test-first:** each slice started with a failing test at one of three seams I approved (pure domain functions, API routes against a real test database, and Playwright in a real browser), then the code to pass it.
   Nothing internal is mocked; the only thing tests set is who is signed in.
 - **Reviewing the UI:** after each part, the AI took screenshots at desktop and phone widths and fixed problems it found, such as a table that cut off columns on phones and a confirmation message that disappeared after a late upload.
+- **Improving it after the first build:** each later improvement went through the same steps as its own OpenSpec change: password change and reset, the sidebar and dashboard summary cards, Student IDs in staff URLs, and the restyled Assessments, Results, and Marksheet pages.
+  For the three restyled pages, the AI first drew design mockups in explore mode, I picked a direction and adjusted it (for example, a transcript table for the marksheet with a grade bands legend in place of the description), and only then did it write the proposal, specs, and tasks.
 - **What I checked myself:** I reviewed the plan and the summary of each part, and decided every product question above.
 
-The task list in `openspec/changes/build-registry-module/tasks.md` shows the order the work was done in.
+Each change's `tasks.md` under `openspec/changes/` shows the order its work was done in, starting with `build-registry-module`.
