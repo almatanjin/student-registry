@@ -85,6 +85,26 @@ test.describe("Staff search and filter the student list", () => {
   });
 });
 
+test.describe("Student list count reads correctly", () => {
+  test.use({ storageState: STAFF_SESSION });
+
+  test("One match", async ({ page }) => {
+    await page.goto("/staff/students");
+    await page.getByLabel("Search").fill("pri");
+
+    await expect(studentRows(page)).toHaveCount(1);
+    await expect(page.getByText("1 student matches these filters", { exact: true })).toBeVisible();
+  });
+
+  test("Several matches", async ({ page }) => {
+    await page.goto("/staff/students");
+    await page.getByLabel("Status").selectOption({ label: "Enrolled" });
+
+    await expect(studentRows(page)).toHaveCount(4);
+    await expect(page.getByText("4 students match these filters", { exact: true })).toBeVisible();
+  });
+});
+
 test.describe("Staff create a student record", () => {
   test.use({ storageState: STAFF_SESSION });
 

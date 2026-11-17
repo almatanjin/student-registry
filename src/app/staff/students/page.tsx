@@ -13,6 +13,13 @@ import { StudentFilters } from "./student-filters";
 
 export const metadata: Metadata = { title: "Students · Student Registry" };
 
+/** "7 students", or with filters "1 student matches these filters" and "4 students match these filters". */
+function studentCount(count: number, filtered: boolean) {
+  const noun = count === 1 ? "student" : "students";
+  if (!filtered) return `${count} ${noun}`;
+  return `${count} ${noun} ${count === 1 ? "matches" : "match"} these filters`;
+}
+
 export default async function StudentsPage({ searchParams }: PageProps<"/staff/students">) {
   await requireStaffPage();
   const raw = await searchParams;
@@ -31,7 +38,7 @@ export default async function StudentsPage({ searchParams }: PageProps<"/staff/s
     <>
       <PageHeader
         title="Students"
-        description={`${students.length} ${students.length === 1 ? "student" : "students"}${filtered ? " match these filters" : ""}`}
+        description={studentCount(students.length, filtered)}
         actions={
           <Button asChild>
             <Link href="/staff/students/new">
