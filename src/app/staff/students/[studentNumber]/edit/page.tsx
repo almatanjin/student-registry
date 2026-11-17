@@ -4,30 +4,30 @@ import { PageHeader } from "@/components/page-header";
 import { requireStaffPage } from "@/server/auth/pages";
 import { NotFoundError } from "@/server/http/errors";
 import { listProgrammeOptions } from "@/server/programmes/service";
-import { getStudent, studentHasPayments } from "@/server/students/service";
+import { getStudentByNumber, studentHasPayments } from "@/server/students/service";
 import { StudentForm } from "../../student-form";
 
 export const metadata: Metadata = { title: "Edit student · Student Registry" };
 
-export default async function EditStudentPage({ params }: PageProps<"/staff/students/[id]/edit">) {
+export default async function EditStudentPage({ params }: PageProps<"/staff/students/[studentNumber]/edit">) {
   await requireStaffPage();
-  const { id } = await params;
-  const student = await getStudent(id).catch((error) => {
+  const { studentNumber } = await params;
+  const student = await getStudentByNumber(studentNumber).catch((error) => {
     if (error instanceof NotFoundError) notFound();
     throw error;
   });
-  const [programmes, billingLocked] = await Promise.all([listProgrammeOptions(), studentHasPayments(id)]);
+  const [programmes, billingLocked] = await Promise.all([listProgrammeOptions(), studentHasPayments(student.id)]);
 
   return (
     <>
       <PageHeader
         title={`Edit ${student.fullName}`}
         description={<span className="font-mono">{student.studentNumber}</span>}
-        back={{ href: `/staff/students/${id}`, label: student.fullName }}
+        back={{ href: `/staff/students/${student.studentNumber}`, label: student.fullName }}
       />
       <StudentForm
         mode="edit"
-        studentId={id}
+        studentId={student.id}
         billingLocked={billingLocked}
         programmes={programmes}
         initial={{

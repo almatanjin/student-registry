@@ -42,11 +42,11 @@ export function StudentForm(props: StudentFormProps) {
 
     const result =
       props.mode === "create"
-        ? await callApi<{ student: { id: string } }>("/api/students", { method: "POST", json: values })
-        : await callApi<{ student: { id: string } }>(`/api/students/${props.studentId}`, { method: "PATCH", json: values });
+        ? await callApi<{ student: { studentNumber: string } }>("/api/students", { method: "POST", json: values })
+        : await callApi<{ student: { studentNumber: string } }>(`/api/students/${props.studentId}`, { method: "PATCH", json: values });
 
     if (result.ok) {
-      router.push(`/staff/students/${result.data.student.id}`);
+      router.push(`/staff/students/${result.data.student.studentNumber}`);
       router.refresh();
       return;
     }

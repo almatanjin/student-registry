@@ -70,12 +70,12 @@ export default async function StudentsPage({ searchParams }: PageProps<"/staff/s
               {students.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="hidden font-mono text-xs sm:table-cell">
-                    <Link href={`/staff/students/${student.id}`} className="underline-offset-4 hover:underline">
+                    <Link href={`/staff/students/${student.studentNumber}`} className="underline-offset-4 hover:underline">
                       {student.studentNumber}
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/staff/students/${student.id}`} className="font-medium underline-offset-4 hover:underline">
+                    <Link href={`/staff/students/${student.studentNumber}`} className="font-medium underline-offset-4 hover:underline">
                       {student.fullName}
                     </Link>
                     <div className="text-xs whitespace-normal text-muted-foreground md:hidden">

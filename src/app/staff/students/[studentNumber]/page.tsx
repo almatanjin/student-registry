@@ -10,15 +10,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";
 import { requireStaffPage } from "@/server/auth/pages";
 import { NotFoundError } from "@/server/http/errors";
-import { getStudent } from "@/server/students/service";
+import { getStudentByNumber } from "@/server/students/service";
 import { ResetPasswordForm } from "./reset-password-form";
 
 export const metadata: Metadata = { title: "Student · Student Registry" };
 
-export default async function StudentPage({ params }: PageProps<"/staff/students/[id]">) {
+export default async function StudentPage({ params }: PageProps<"/staff/students/[studentNumber]">) {
   await requireStaffPage();
-  const { id } = await params;
-  const student = await getStudent(id).catch((error) => {
+  const { studentNumber } = await params;
+  const student = await getStudentByNumber(studentNumber).catch((error) => {
     if (error instanceof NotFoundError) notFound();
     throw error;
   });
@@ -37,13 +37,13 @@ export default async function StudentPage({ params }: PageProps<"/staff/students
         actions={
           <>
             <Button variant="outline" asChild>
-              <Link href={`/staff/students/${id}/fees`}>
+              <Link href={`/staff/students/${student.studentNumber}/fees`}>
                 <Wallet />
                 Fees and payments
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={`/staff/students/${id}/edit`}>
+              <Link href={`/staff/students/${student.studentNumber}/edit`}>
                 <Pencil />
                 Edit
               </Link>
@@ -77,7 +77,7 @@ export default async function StudentPage({ params }: PageProps<"/staff/students
           <p className="text-sm text-muted-foreground">
             If the student has forgotten their password, set a temporary one. They must change it when they next sign in.
           </p>
-          <ResetPasswordForm studentId={id} />
+          <ResetPasswordForm studentId={student.id} />
         </CardContent>
       </Card>
     </>

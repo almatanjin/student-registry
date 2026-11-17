@@ -5,7 +5,7 @@ let created = 0;
 
 /**
  * Creates a student through the staff "Add student" form, the way the Registry team does,
- * and returns the new account's email and initial password.
+ * and returns the new account's email, initial password, and the Student ID read from the record URL.
  */
 export async function createStudentAsStaff(browser: Browser, name: string) {
   created += 1;
@@ -23,8 +23,9 @@ export async function createStudentAsStaff(browser: Browser, name: string) {
   await page.getByLabel("Initial password").fill(initialPassword);
   await page.getByRole("button", { name: "Create student" }).click();
   await expect(page.getByRole("heading", { name })).toBeVisible();
-  const url = page.url();
+  const studentNumber = page.url().split("/").pop() as string;
+  expect(studentNumber).toMatch(/^SMS-\d{4}-\d{4}$/);
   await context.close();
 
-  return { email, initialPassword, studentId: url.split("/").pop() as string };
+  return { email, initialPassword, studentNumber };
 }

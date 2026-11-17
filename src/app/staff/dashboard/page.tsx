@@ -96,7 +96,7 @@ export default async function StaffDashboardPage() {
                   <TableRow key={entry.id}>
                     <TableCell className="hidden font-mono text-xs sm:table-cell">{entry.studentNumber}</TableCell>
                     <TableCell>
-                      <Link href={`/staff/students/${entry.id}/fees`} className="font-medium underline-offset-4 hover:underline">
+                      <Link href={`/staff/students/${entry.studentNumber}/fees`} className="font-medium underline-offset-4 hover:underline">
                         {entry.fullName}
                       </Link>
                       <div className="text-xs whitespace-normal text-muted-foreground lg:hidden">

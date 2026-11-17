@@ -145,10 +145,10 @@ test.describe("Signed-in people change their own password", () => {
 });
 
 test.describe("Staff reset a student's password", () => {
-  async function resetAsStaff(browser: Parameters<typeof createStudentAsStaff>[0], studentId: string, temporary: string) {
+  async function resetAsStaff(browser: Parameters<typeof createStudentAsStaff>[0], studentNumber: string, temporary: string) {
     const staff = await browser.newContext({ storageState: STAFF_SESSION });
     const page = await staff.newPage();
-    await page.goto(`/staff/students/${studentId}`);
+    await page.goto(`/staff/students/${studentNumber}`);
     await page.getByRole("button", { name: "Reset password" }).click();
     await page.getByLabel("Temporary password").fill(temporary);
     await page.getByRole("button", { name: "Set temporary password" }).click();
@@ -163,7 +163,7 @@ test.describe("Staff reset a student's password", () => {
     await page.getByRole("button", { name: "Sign out" }).click();
     await expectOnSignInPage(page);
 
-    await resetAsStaff(browser, student.studentId, "temporary-pass-9");
+    await resetAsStaff(browser, student.studentNumber, "temporary-pass-9");
 
     await signIn(page, student.email, student.password);
     await expect(page.getByText("Invalid email or password")).toBeVisible();
@@ -176,7 +176,7 @@ test.describe("Staff reset a student's password", () => {
     const student = await createStudentAsStaff(browser, "Tomas Ruiz");
     const staff = await browser.newContext({ storageState: STAFF_SESSION });
     const page = await staff.newPage();
-    await page.goto(`/staff/students/${student.studentId}`);
+    await page.goto(`/staff/students/${student.studentNumber}`);
 
     await page.getByRole("button", { name: "Reset password" }).click();
     await page.getByLabel("Temporary password").fill("short");
@@ -189,7 +189,7 @@ test.describe("Staff reset a student's password", () => {
   test("Staff reset while the student is signed in", async ({ browser, page }) => {
     const student = await readyStudent(browser, page, "Uma Patel");
 
-    await resetAsStaff(browser, student.studentId, "temporary-pass-8");
+    await resetAsStaff(browser, student.studentNumber, "temporary-pass-8");
 
     await page.goto("/student/fees");
     await expectOnSignInPage(page);

@@ -232,6 +232,13 @@ export async function getStudent(id: string): Promise<StudentView> {
   return toView(row);
 }
 
+/** Finds a student by their Student ID (for example `SMS-2026-0001`), the key staff page URLs use. */
+export async function getStudentByNumber(studentNumber: string): Promise<StudentView> {
+  const row = await prisma.student.findUnique({ where: { studentNumber }, select: studentSelect });
+  if (!row) throw new NotFoundError();
+  return toView(row);
+}
+
 export async function listStudents(query: unknown): Promise<StudentView[]> {
   const { q, programmeId, status } = studentListQuerySchema.parse(query);
   const rows = await prisma.student.findMany({

@@ -8,18 +8,19 @@ import { requireStaffPage } from "@/server/auth/pages";
 import { money, today } from "@/server/config";
 import { getStudentFees } from "@/server/fees/service";
 import { NotFoundError } from "@/server/http/errors";
-import { getStudent } from "@/server/students/service";
+import { getStudentByNumber } from "@/server/students/service";
 import { PaymentForm } from "./payment-form";
 
 export const metadata: Metadata = { title: "Fees · Student Registry" };
 
-export default async function StudentFeesPage({ params }: PageProps<"/staff/students/[id]/fees">) {
+export default async function StudentFeesPage({ params }: PageProps<"/staff/students/[studentNumber]/fees">) {
   await requireStaffPage();
-  const { id } = await params;
-  const [student, fees] = await Promise.all([getStudent(id), getStudentFees(id)]).catch((error) => {
+  const { studentNumber } = await params;
+  const student = await getStudentByNumber(studentNumber).catch((error) => {
     if (error instanceof NotFoundError) notFound();
     throw error;
   });
+  const fees = await getStudentFees(student.id);
 
   return (
     <>
@@ -35,7 +36,7 @@ export default async function StudentFeesPage({ params }: PageProps<"/staff/stud
             <StatusBadge status={student.status} />
           </span>
         }
-        back={{ href: `/staff/students/${id}`, label: student.fullName }}
+        back={{ href: `/staff/students/${student.studentNumber}`, label: student.fullName }}
       />
       <div className="grid gap-6">
         <FeeSummary fees={fees} />
@@ -50,7 +51,7 @@ export default async function StudentFeesPage({ params }: PageProps<"/staff/stud
             </CardHeader>
             <CardContent>
               <PaymentForm
-                studentId={id}
+                studentId={student.id}
                 today={today()}
                 outstanding={money(fees.outstandingMinor)}
                 disabled={fees.outstandingMinor === 0}
