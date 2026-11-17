@@ -1,5 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { classify, missingGrades, moduleResultStatus, parseGrade, type ModuleResultCounts } from "./results";
+import {
+  classify,
+  gradeBandLabels,
+  missingGrades,
+  moduleResultStatus,
+  parseGrade,
+  type ModuleResultCounts,
+} from "./results";
 
 describe("classify", () => {
   test("Classification boundaries", () => {
@@ -16,6 +23,17 @@ describe("classify", () => {
   test("the ends of the scale", () => {
     expect(classify(0)).toBe("Fail");
     expect(classify(100)).toBe("Distinction");
+  });
+});
+
+describe("gradeBandLabels", () => {
+  test("Legend shown", () => {
+    expect(gradeBandLabels()).toEqual([
+      { classification: "Fail", label: "Fail <40" },
+      { classification: "Pass", label: "Pass 40+" },
+      { classification: "Merit", label: "Merit 60+" },
+      { classification: "Distinction", label: "Distinction 70+" },
+    ]);
   });
 });
 

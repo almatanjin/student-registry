@@ -9,12 +9,29 @@ export const RESULT_STATE_LABELS: Record<ResultState, string> = {
   WITHHELD: "Withheld",
 };
 
+/** Each classification and the lowest grade that earns it, from lowest to highest. */
+export const CLASSIFICATION_BANDS: readonly { classification: Classification; from: number }[] = [
+  { classification: "Fail", from: 0 },
+  { classification: "Pass", from: 40 },
+  { classification: "Merit", from: 60 },
+  { classification: "Distinction", from: 70 },
+];
+
 /** Pass from 40, Merit from 60, Distinction from 70; below 40 is a Fail. */
 export function classify(grade: number): Classification {
-  if (grade >= 70) return "Distinction";
-  if (grade >= 60) return "Merit";
-  if (grade >= 40) return "Pass";
-  return "Fail";
+  const band = CLASSIFICATION_BANDS.findLast((candidate) => grade >= candidate.from) ?? CLASSIFICATION_BANDS[0];
+  return band.classification;
+}
+
+/** The grade bands legend: "Fail <40" for the lowest band, then "Pass 40+" and so on. */
+export function gradeBandLabels(): { classification: Classification; label: string }[] {
+  return CLASSIFICATION_BANDS.map((band, index) => ({
+    classification: band.classification,
+    label:
+      index === 0
+        ? `${band.classification} <${CLASSIFICATION_BANDS[1].from}`
+        : `${band.classification} ${band.from}+`,
+  }));
 }
 
 /** A whole number from 0 to 100, given as a number or as text; null for anything else. */
