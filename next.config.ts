@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Playwright builds into its own folder so it never clashes with `npm run dev`.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
+  // Hide the Next.js "N" badge in development; compile and runtime errors still show.
+  devIndicators: false,
   experimental: {
     // The proxy buffers request bodies up to this size. Submission files may be up to 10 MB,
     // plus multipart form overhead; larger uploads are refused by the upload route itself.
