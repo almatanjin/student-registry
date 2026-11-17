@@ -3,8 +3,9 @@ import { SEED_STUDENTS } from "../prisma/seed/students";
 import { STAFF_SESSION, STUDENT_SESSION, seedPassword } from "./support/accounts";
 import { signInAs } from "./support/sign-in";
 
-function moduleCard(page: Page, code: string) {
-  return page.getByRole("region", { name: new RegExp(`^${code} `) });
+/** A module's group of rows in the student's marksheet table. */
+function moduleRows(page: Page, code: string) {
+  return page.getByRole("table", { name: "Your marksheet" }).getByRole("rowgroup", { name: new RegExp(`^${code} `) });
 }
 
 async function openMarksheet(page: Page, assessment: string) {
@@ -23,7 +24,7 @@ test.describe("Students see only published results", () => {
   test("Published module", async ({ page }) => {
     await page.goto("/student/marksheet");
 
-    const cs101 = moduleCard(page, "CS101");
+    const cs101 = moduleRows(page, "CS101");
     await expect(cs101.getByRole("row", { name: /Lab report 1/ })).toContainText("72");
     await expect(cs101.getByRole("row", { name: /Lab report 1/ })).toContainText("Distinction");
     await expect(cs101.getByRole("row", { name: /Programming test/ })).toContainText("68");
@@ -33,8 +34,8 @@ test.describe("Students see only published results", () => {
   test("a Pending module shows that results are not yet released", async ({ page }) => {
     await page.goto("/student/marksheet");
 
-    await expect(moduleCard(page, "CS102")).toContainText("Results not yet released");
-    await expect(moduleCard(page, "CS102").getByRole("table")).toHaveCount(0);
+    await expect(moduleRows(page, "CS102")).toContainText("Results not yet released");
+    await expect(moduleRows(page, "CS102").getByRole("row")).toHaveCount(1);
   });
 });
 
@@ -43,8 +44,8 @@ test("Withheld module", async ({ page }) => {
   await signInAs(page, liam?.email ?? "", seedPassword());
   await page.goto("/student/marksheet");
 
-  await expect(moduleCard(page, "CS101")).toContainText("Results not yet released");
-  await expect(moduleCard(page, "CS102")).toContainText("Results not yet released");
+  await expect(moduleRows(page, "CS101")).toContainText("Results not yet released");
+  await expect(moduleRows(page, "CS102")).toContainText("Results not yet released");
   await expect(page.getByRole("main")).not.toContainText(/withheld/i);
   await expect(page.getByRole("main")).not.toContainText("55");
 });
@@ -87,7 +88,7 @@ test.describe("Staff enter grades", () => {
     const student = await browser.newContext({ storageState: STUDENT_SESSION });
     const studentPage = await student.newPage();
     await studentPage.goto("/student/marksheet");
-    const lab = moduleCard(studentPage, "CS101").getByRole("row", { name: /Lab report 1/ });
+    const lab = moduleRows(studentPage, "CS101").getByRole("row", { name: /Lab report 1/ });
     await expect(lab).toContainText("69");
     await expect(lab).toContainText("Merit");
     await student.close();

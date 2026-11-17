@@ -1,9 +1,14 @@
 import path from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { STAFF_SESSION } from "./support/accounts";
 import { signIn } from "./support/sign-in";
 
 const FIXTURES = path.join(import.meta.dirname, "..", "tests", "fixtures");
+
+/** The DS502 group of rows in a student's marksheet table. */
+function ds502Rows(page: Page) {
+  return page.getByRole("table", { name: "Your marksheet" }).getByRole("rowgroup", { name: /^DS502 / });
+}
 
 function inDays(days: number) {
   return `${new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)}T17:00`;
@@ -62,7 +67,7 @@ test("a student's journey from enrolment to a released result", async ({ browser
   await student.getByRole("button", { name: "Submit" }).click();
   await expect(student.getByText("sample.pdf was submitted.")).toBeVisible();
   await student.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Marksheet" }).click();
-  await expect(student.getByRole("region", { name: /^DS502 / })).toContainText("Results not yet released");
+  await expect(ds502Rows(student)).toContainText("Results not yet released");
 
   // Staff see the on-time submission and grade it.
   await staff.goto(assessmentUrl);
@@ -89,10 +94,10 @@ test("a student's journey from enrolment to a released result", async ({ browser
 
   // The student now sees the released result.
   await student.reload();
-  const released = student.getByRole("region", { name: /^DS502 / }).getByRole("row", { name: /Journey capstone/ });
+  const released = ds502Rows(student).getByRole("row", { name: /Journey capstone/ });
   await expect(released).toContainText("74");
   await expect(released).toContainText("Distinction");
-  await expect(student.getByRole("region", { name: /^DS502 / }).getByRole("row", { name: /Pipeline design/ })).toContainText("58");
+  await expect(ds502Rows(student).getByRole("row", { name: /Pipeline design/ })).toContainText("58");
 
   await staffContext.close();
   await studentContext.close();
