@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Gives the Registry team the figures they check first, in four cards at the top of the staff dashboard, each worked out from current records and linking to where the detail lives.
+Gives the Registry team the figures they check first, in four cards at the top of the staff dashboard, each worked out from current records; the Enrolled students and Results to publish cards link to where the detail lives.
 
 ## ADDED Requirements
 
@@ -19,7 +19,8 @@ The card SHALL link to the student list filtered to Enrolled.
 - **THEN** the student list opens filtered to the Enrolled status
 
 ### Requirement: Overdue balances card
-The dashboard SHALL show how many students have an overdue amount and the total overdue, using the same rules as the overdue balances list, and SHALL link to that list on the same page.
+The dashboard SHALL show how many students have an overdue amount and the total overdue, using the same rules as the overdue balances list.
+The card SHALL NOT be a link, because that list sits just below the cards on the same page.
 
 #### Scenario: Students overdue
 - **WHEN** 2 students are overdue by 1,500.00 and 3,000.00

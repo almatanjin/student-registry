@@ -80,13 +80,11 @@ test.describe("Registry dashboard cards", () => {
     await expect(page.getByLabel("Status")).toHaveValue("ENROLLED");
   });
 
-  test("the Overdue balances card jumps to the overdue list", async ({ page }) => {
+  test("the Overdue balances card is not a link", async ({ page }) => {
     await page.goto("/staff/dashboard");
 
-    await tile(page, "Overdue balances").getByRole("link").click();
-
-    await expect(page).toHaveURL(/\/staff\/dashboard#overdue-balances$/);
-    await expect(page.locator("#overdue-balances")).toBeInViewport();
+    await expect(tile(page, "Overdue balances").locator('[data-slot="stat-value"]')).toBeVisible();
+    await expect(tile(page, "Overdue balances").getByRole("link")).toHaveCount(0);
   });
 
   test("the Results to publish card opens the results page", async ({ page }) => {

@@ -127,8 +127,8 @@ The mark has an empty `alt` because the name is written beside it.
 - **Results to publish:** modules with their assessment IDs, all grades as `(studentId, assessmentId)`, all `ModuleResult` rows, and each programme's student IDs, then a count in memory of each student and module where the state is Pending (or has no row) and `missingGrades()` from `src/domain/results.ts` returns an empty list.
   This reuses the same rule as "Publish all", so the card and the button never disagree.
 
-The dashboard page calls the service with `today()` and renders four `StatTile` components (`src/components/stat-tile.tsx`), each a link with a label, a value, a detail line, and an icon badge.
-The overdue table's card gets `id="overdue-balances"` so the Overdue balances tile can link to it.
+The dashboard page calls the service with `today()` and renders four `StatTile` components (`src/components/stat-tile.tsx`), each with a label, a value, a detail line, and an icon badge, and a link only when given an `href` (Enrolled students and Results to publish).
+The Overdue balances tile is not a link, because the overdue table sits directly below the cards.
 
 ## Risks / Trade-offs
 

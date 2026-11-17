@@ -12,7 +12,7 @@ The Registry dashboard also shows a single overdue table, so the registrar has n
   - Each navigation link gets an icon, and the current page is highlighted.
   - A footer at the bottom shows who is signed in, with "Change password" and "Sign out" below it.
 - On phones, the sidebar is replaced by a slim top bar with the mark and a "Menu" button that opens the same sidebar over the page.
-- Add four summary cards above the overdue table on the staff dashboard, each showing real data and linking to where the detail lives:
+- Add four summary cards above the overdue table on the staff dashboard, each showing real data; Enrolled students and Results to publish link to where the detail lives:
   - **Enrolled students**: how many students are Enrolled, with the counts of the other statuses.
   - **Overdue balances**: how many students are overdue and the total amount.
   - **Fees collected**: the share of all billed fees that has been paid.

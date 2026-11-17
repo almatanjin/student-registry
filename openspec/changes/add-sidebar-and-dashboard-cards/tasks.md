@@ -29,7 +29,7 @@
 ## 5. Dashboard cards
 
 - [x] 5.1 Build `StatTile` and render the four tiles on the staff dashboard above the overdue table (with `id="overdue-balances"` on its card), and verify a Playwright test that the four tiles show the seeded figures: 4 enrolled with "1 deferred, 1 withdrawn, 1 completed", an overdue count equal to the number of rows in the overdue table (which seeded students are overdue depends on the seed date), a fees percentage between 0% and 100%, and a results count matching the complete Pending results on the Results pages
-- [x] 5.2 Verify Playwright tests for "Opening the enrolled list", the Overdue balances tile jumping to the table, and the Results to publish tile opening the results page
+- [x] 5.2 Verify Playwright tests for "Opening the enrolled list", the Overdue balances tile not being a link, and the Results to publish tile opening the results page
 - [x] 5.3 Take screenshots of every staff and student page and the sign-in page at 1280 px and 375 px wide, check the tiles wrap two per row on phones, every pill and button uses the logo palette, and nothing overflows (including the student payment history table on phones, which runs against its card edge today), and fix any visual issue found
 
 ## 6. Documentation and full check
