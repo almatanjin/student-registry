@@ -86,7 +86,7 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 
 - **Dashboard:**
   - Four summary cards, each worked out from current records: Enrolled students (with the other statuses), Overdue balances, Fees collected (the share of all billed fees paid, rounded down), and Results to publish (complete results still Pending).
-    Each card except Fees collected links to where its detail lives.
+    Enrolled students opens the student list filtered to Enrolled, and Results to publish opens the Results page; Overdue balances and Fees collected are not links, since the overdue list sits just below the cards.
   - Below them, every student with an overdue balance, highest amount first, whatever their enrolment status.
 - **Students:**
   - Search by name or Student ID and filter by programme and status. The filters live in the URL, so they survive a reload.
@@ -102,7 +102,7 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
   - Each module is a coloured card with its code, title, programme, number of assessments, and one pill that says what it needs next: "No assessments yet", "No students yet", "2 ready to publish", "Waiting for grades", "1 withheld", or "All published".
     The "ready to publish" counts use the same rule as the dashboard's Results to publish card, so the two always agree.
   - Inside a module, publish or withhold each student's results, or publish every complete result at once.
-- **Programmes:** fee plans and modules, read-only.
+- **Programmes:** a read-only card per programme with its coloured code badge, annual fee, fee plan (with the number of instalments and a Total row), and its modules as pills alternating blue and green.
 
 **Students**
 
@@ -163,6 +163,7 @@ The brief leaves some rules open; these are the choices made, and why.
   - "Publish all" skips withheld and incomplete results and reports how many it published and skipped.
   - Pending and withheld results look the same to the student ("Results not yet released"), and their grades never leave the server.
   - Changing a grade that is already published asks staff to confirm first.
+  - Adding an assessment to a module returns that module's published results to Pending, because they are no longer complete; withheld results stay withheld. The new-assessment form says how many will return to Pending before staff create it.
 - **Privacy of other students' data:** a student asking for another student's record, fees, file, or results gets a 404, so the record's existence is not revealed.
 
 **Out of scope:** a self-service "Forgot password?" email link, resetting staff passwords, user management, screens for editing programmes, modules, and fee plans (they come from the seed), editing or refunding payments, file version history, notifications, and deployment.
