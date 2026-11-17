@@ -1,7 +1,28 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { STAFF_EMAIL, STAFF_SESSION, STUDENT_SESSION } from "./support/accounts";
 
 test.describe("Sign-in page shows the brand", () => {
+  test("the browser tab and home-screen icons are the PEN mark", async ({ page }) => {
+    await page.goto("/sign-in");
+
+    const icon = page.locator('link[rel="icon"][type="image/svg+xml"]');
+    const iconResponse = await page.request.get((await icon.getAttribute("href")) as string);
+    expect(iconResponse.status()).toBe(200);
+    expect(await iconResponse.text()).toBe(readFileSync("public/pen-mark.svg", "utf8"));
+
+    const appleIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute("href");
+    const appleResponse = await page.request.get(appleIcon as string);
+    expect(appleResponse.status()).toBe(200);
+    expect(appleResponse.headers()["content-type"]).toBe("image/png");
+
+    const favicon = await page.request.get("/favicon.ico");
+    expect(favicon.status()).toBe(200);
+    // The old favicon.ico was the default Next.js icon; this is its MD5 fingerprint.
+    expect(createHash("md5").update(await favicon.body()).digest("hex")).not.toBe("2be26fb5639bc7a24d9c816567b0de5f");
+  });
+
   test("Opening the sign-in page", async ({ page }) => {
     await page.goto("/sign-in");
 
