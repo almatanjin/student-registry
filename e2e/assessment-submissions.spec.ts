@@ -61,8 +61,8 @@ test.describe("Staff create assessments", () => {
     await expect(page.getByRole("group", { name: "Missing" })).toContainText("2");
     const rows = page.getByRole("table", { name: "Submissions" });
     await expect(rows.getByRole("row", { name: /Liam Chen/ })).toContainText("Late");
-    await expect(rows.getByRole("row", { name: /Amara Okafor/ })).toContainText("On time");
-    await expect(rows.getByRole("row", { name: /Priya Patel/ })).toContainText("Not submitted");
+    await expect(rows.getByRole("row", { name: /Alma Tanjin/ })).toContainText("On time");
+    await expect(rows.getByRole("row", { name: /Priya Kabir/ })).toContainText("Not submitted");
   });
 
   test("Extending a deadline", async ({ page }) => {
@@ -172,6 +172,6 @@ test.describe("Late submissions are flagged for staff", () => {
     await page.goto("/staff/assessments");
     await page.getByRole("link", { name: "Databases coursework" }).click();
 
-    await expect(page.getByRole("table", { name: "Submissions" }).getByRole("row", { name: /Amara Okafor/ })).toContainText("Late");
+    await expect(page.getByRole("table", { name: "Submissions" }).getByRole("row", { name: /Alma Tanjin/ })).toContainText("Late");
   });
 });

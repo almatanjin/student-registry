@@ -21,9 +21,9 @@ type SeedStudent = {
 
 /** Demo students. Their password is SEED_USER_PASSWORD from .env. */
 export const SEED_STUDENTS = [
-  { fullName: "Amara Okafor", email: "amara.okafor@students.sms.example", dateOfBirth: "2006-02-11", programmeCode: "BSC-CS", intake: "current", status: "ENROLLED" },
+  { fullName: "Alma Tanjin", email: "alma@students.sms.example", dateOfBirth: "2006-02-11", programmeCode: "BSC-CS", intake: "current", status: "ENROLLED" },
   { fullName: "Liam Chen", email: "liam.chen@students.sms.example", dateOfBirth: "2005-09-23", programmeCode: "BSC-CS", intake: "current-or-next", status: "ENROLLED" },
-  { fullName: "Priya Patel", email: "priya.patel@students.sms.example", dateOfBirth: "2006-06-02", programmeCode: "BSC-CS", intake: "current", status: "ENROLLED" },
+  { fullName: "Priya Kabir", email: "priya.k@students.sms.example", dateOfBirth: "2006-06-02", programmeCode: "BSC-CS", intake: "current", status: "ENROLLED" },
   { fullName: "Fatima Hassan", email: "fatima.hassan@students.sms.example", dateOfBirth: "2004-12-30", programmeCode: "BSC-CS", intake: "previous", status: "WITHDRAWN" },
   { fullName: "Sofia Rossi", email: "sofia.rossi@students.sms.example", dateOfBirth: "2000-04-17", programmeCode: "MSC-DS", intake: "previous", status: "ENROLLED" },
   { fullName: "Daniel Mensah", email: "daniel.mensah@students.sms.example", dateOfBirth: "1999-07-08", programmeCode: "MSC-DS", intake: "previous", status: "COMPLETED" },

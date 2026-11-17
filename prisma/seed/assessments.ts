@@ -24,7 +24,7 @@ export const SEED_ASSESSMENTS: SeedAssessment[] = [
     deadlineInDays: -21,
     isOpen: true,
     submissions: [
-      { student: "Amara Okafor", daysFromDeadline: -2 },
+      { student: "Alma Tanjin", daysFromDeadline: -2 },
       { student: "Liam Chen", daysFromDeadline: 1 },
     ],
   },
@@ -34,9 +34,9 @@ export const SEED_ASSESSMENTS: SeedAssessment[] = [
     deadlineInDays: -45,
     isOpen: false,
     submissions: [
-      { student: "Amara Okafor", daysFromDeadline: -1 },
+      { student: "Alma Tanjin", daysFromDeadline: -1 },
       { student: "Liam Chen", daysFromDeadline: -1 },
-      { student: "Priya Patel", daysFromDeadline: -3 },
+      { student: "Priya Kabir", daysFromDeadline: -3 },
     ],
   },
   {
@@ -44,7 +44,7 @@ export const SEED_ASSESSMENTS: SeedAssessment[] = [
     title: "Query optimisation report",
     deadlineInDays: 14,
     isOpen: true,
-    submissions: [{ student: "Amara Okafor", daysFromDeadline: -15 }],
+    submissions: [{ student: "Alma Tanjin", daysFromDeadline: -15 }],
   },
   { moduleCode: "CS102", title: "Databases coursework", deadlineInDays: -7, isOpen: true, submissions: [] },
   { moduleCode: "CS102", title: "Normalisation exercise", deadlineInDays: 10, isOpen: true, submissions: [] },

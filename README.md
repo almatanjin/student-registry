@@ -72,9 +72,9 @@ Every demo account signs in with the password you set as `SEED_USER_PASSWORD` in
 |---|---|---|
 | Staff | `registrar@sms.example` | Every staff page |
 | Staff | `registry.officer@sms.example` | A second staff account |
-| Student | `amara.okafor@students.sms.example` | BSc, fees paid in full, CS101 results published |
+| Student | `alma@students.sms.example` | BSc, fees paid in full, CS101 results published |
 | Student | `liam.chen@students.sms.example` | BSc, part-paid but not overdue, a late submission, CS101 results withheld |
-| Student | `priya.patel@students.sms.example` | BSc, nothing paid yet, CS101 results pending (a grade is missing) |
+| Student | `priya.k@students.sms.example` | BSc, nothing paid yet, CS101 results pending (a grade is missing) |
 | Student | `fatima.hassan@students.sms.example` | BSc, withdrawn, overdue fee |
 | Student | `sofia.rossi@students.sms.example` | MSc, overdue fee, DS501 results published |
 | Student | `daniel.mensah@students.sms.example` | MSc, completed, fees paid in full |

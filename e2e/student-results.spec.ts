@@ -54,35 +54,35 @@ test.describe("Staff enter grades", () => {
 
   test("Out-of-range or non-numeric grade", async ({ page }) => {
     await openMarksheet(page, "Lab report 1");
-    const grade = page.getByLabel("Grade for Priya Patel");
+    const grade = page.getByLabel("Grade for Priya Kabir");
 
     await grade.fill("101");
-    await marksheetRow(page, "Priya Patel").getByRole("button", { name: "Save" }).click();
+    await marksheetRow(page, "Priya Kabir").getByRole("button", { name: "Save" }).click();
 
     await expect(grade).toHaveAccessibleDescription("Enter a whole number from 0 to 100");
   });
 
   test("Entering a grade, for a Student with no submission", async ({ page }) => {
     await openMarksheet(page, "Lab report 1");
-    await expect(marksheetRow(page, "Priya Patel")).toContainText("Not submitted");
+    await expect(marksheetRow(page, "Priya Kabir")).toContainText("Not submitted");
 
-    await page.getByLabel("Grade for Priya Patel").fill("45");
-    await marksheetRow(page, "Priya Patel").getByRole("button", { name: "Save" }).click();
+    await page.getByLabel("Grade for Priya Kabir").fill("45");
+    await marksheetRow(page, "Priya Kabir").getByRole("button", { name: "Save" }).click();
 
-    await expect(marksheetRow(page, "Priya Patel")).toContainText("Pass");
+    await expect(marksheetRow(page, "Priya Kabir")).toContainText("Pass");
     await page.reload();
-    await expect(page.getByLabel("Grade for Priya Patel")).toHaveValue("45");
+    await expect(page.getByLabel("Grade for Priya Kabir")).toHaveValue("45");
   });
 
   test("Correcting a published grade", async ({ page, browser }) => {
     await openMarksheet(page, "Lab report 1");
-    await page.getByLabel("Grade for Amara Okafor").fill("69");
-    await marksheetRow(page, "Amara Okafor").getByRole("button", { name: "Save" }).click();
+    await page.getByLabel("Grade for Alma Tanjin").fill("69");
+    await marksheetRow(page, "Alma Tanjin").getByRole("button", { name: "Save" }).click();
 
-    const warning = marksheetRow(page, "Amara Okafor").getByRole("alert");
+    const warning = marksheetRow(page, "Alma Tanjin").getByRole("alert");
     await expect(warning).toContainText("This result is already released");
     await warning.getByRole("button", { name: "Save anyway" }).click();
-    await expect(marksheetRow(page, "Amara Okafor")).toContainText("Merit");
+    await expect(marksheetRow(page, "Alma Tanjin")).toContainText("Merit");
 
     const student = await browser.newContext({ storageState: STUDENT_SESSION });
     const studentPage = await student.newPage();
@@ -109,7 +109,7 @@ test.describe("Staff publish and withhold results", () => {
     await page.getByRole("button", { name: "Publish all complete results" }).click();
 
     await expect(page.getByRole("status")).toContainText("1 published, 3 skipped");
-    await expect(results.getByRole("row", { name: /Priya Patel/ })).toContainText("Published");
+    await expect(results.getByRole("row", { name: /Priya Kabir/ })).toContainText("Published");
     await expect(results.getByRole("row", { name: /Liam Chen/ })).toContainText("Withheld");
   });
 
@@ -117,10 +117,10 @@ test.describe("Staff publish and withhold results", () => {
     await page.goto("/staff/results");
     await page.getByRole("link", { name: /CS101 Programming Fundamentals/ }).click();
 
-    await page.getByRole("group", { name: "Result actions for Priya Patel" }).getByRole("button", { name: "Withhold" }).click();
+    await page.getByRole("group", { name: "Result actions for Priya Kabir" }).getByRole("button", { name: "Withhold" }).click();
 
     await expect(
-      page.getByRole("table", { name: "Module results" }).getByRole("row", { name: /Priya Patel/ }),
+      page.getByRole("table", { name: "Module results" }).getByRole("row", { name: /Priya Kabir/ }),
     ).toContainText("Withheld");
   });
 });

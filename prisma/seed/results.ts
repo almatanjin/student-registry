@@ -2,18 +2,18 @@ import type { PrismaClient } from "@/generated/prisma/client";
 
 /** Demo grades: assessment title → student → grade. */
 const GRADES: Record<string, Record<string, number>> = {
-  "Lab report 1": { "Amara Okafor": 72, "Liam Chen": 55 },
-  "Programming test": { "Amara Okafor": 68, "Liam Chen": 38, "Priya Patel": 45 },
+  "Lab report 1": { "Alma Tanjin": 72, "Liam Chen": 55 },
+  "Programming test": { "Alma Tanjin": 68, "Liam Chen": 38, "Priya Kabir": 45 },
   "Regression project": { "Sofia Rossi": 64, "Daniel Mensah": 81 },
 };
 
 /**
- * Demo release states. Amara's CS101 and Sofia's and Daniel's DS501 are published;
+ * Demo release states. Alma's CS101 and Sofia's and Daniel's DS501 are published;
  * Liam's CS101 is withheld (for example, pending an academic misconduct review);
  * Priya's CS101 stays Pending because her lab report has no grade.
  */
 const RESULTS: { student: string; moduleCode: string; state: "PUBLISHED" | "WITHHELD" }[] = [
-  { student: "Amara Okafor", moduleCode: "CS101", state: "PUBLISHED" },
+  { student: "Alma Tanjin", moduleCode: "CS101", state: "PUBLISHED" },
   { student: "Liam Chen", moduleCode: "CS101", state: "WITHHELD" },
   { student: "Sofia Rossi", moduleCode: "DS501", state: "PUBLISHED" },
   { student: "Daniel Mensah", moduleCode: "DS501", state: "PUBLISHED" },

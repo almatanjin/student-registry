@@ -4,7 +4,7 @@ import { SEED_STUDENTS } from "../../prisma/seed/students";
 /** Seeded demo accounts; every one uses SEED_USER_PASSWORD from .env. */
 export const STAFF_EMAIL = STAFF_ACCOUNTS[0].email;
 
-/** The student the saved student session signs in as: Amara Okafor, BSc, enrolled this year. */
+/** The student the saved student session signs in as: Alma Tanjin, BSc, enrolled this year. */
 export const STUDENT = SEED_STUDENTS[0];
 
 export function seedPassword(): string {

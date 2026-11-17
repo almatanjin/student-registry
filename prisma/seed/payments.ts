@@ -5,7 +5,7 @@ type SeededStudent = { id: string; fullName: string; studentNumber: string; acad
 
 /**
  * Demo payments that give the same picture whatever day the seed runs:
- * Amara and Daniel are fully paid, Liam is part-paid but not overdue,
+ * Alma and Daniel are fully paid, Liam is part-paid but not overdue,
  * Fatima and Sofia (previous academic year, so every instalment is due) are overdue,
  * and Priya and Noah have paid nothing yet.
  */
@@ -22,9 +22,9 @@ export async function seedPayments(
 
   const payments: { student: SeededStudent; amountMinor: number; paidOn: string }[] = [];
 
-  const amara = student("Amara Okafor");
-  payments.push({ student: amara, amountMinor: 450_000, paidOn: options.today });
-  payments.push({ student: amara, amountMinor: 450_000, paidOn: options.today });
+  const alma = student("Alma Tanjin");
+  payments.push({ student: alma, amountMinor: 450_000, paidOn: options.today });
+  payments.push({ student: alma, amountMinor: 450_000, paidOn: options.today });
 
   // Liam pays exactly what has fallen due so far, or the first instalment ahead of time when nothing is due yet.
   const liam = student("Liam Chen");

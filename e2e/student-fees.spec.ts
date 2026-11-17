@@ -19,7 +19,7 @@ test.describe("Staff record payments", () => {
   test.use({ storageState: STAFF_SESSION });
 
   test("Valid payment", async ({ page }) => {
-    await openFees(page, "Priya Patel");
+    await openFees(page, "Priya Kabir");
     await expect(summaryBox(page, "Outstanding")).toContainText("£9,000.00");
 
     await page.getByLabel("Amount").fill("250.00");
@@ -34,7 +34,7 @@ test.describe("Staff record payments", () => {
   });
 
   test("Duplicate reference number", async ({ page }) => {
-    await openFees(page, "Priya Patel");
+    await openFees(page, "Priya Kabir");
 
     await page.getByLabel("Amount").fill("1.00");
     await page.getByLabel("Reference number").fill("e2e-priya-1");
@@ -46,7 +46,7 @@ test.describe("Staff record payments", () => {
   });
 
   test("Overpayment attempt", async ({ page }) => {
-    await openFees(page, "Priya Patel");
+    await openFees(page, "Priya Kabir");
 
     await page.getByLabel("Amount").fill("100000");
     await page.getByLabel("Reference number").fill("E2E-PRIYA-OVER");
@@ -58,7 +58,7 @@ test.describe("Staff record payments", () => {
   });
 
   test("Invalid amount or date", async ({ page }) => {
-    await openFees(page, "Priya Patel");
+    await openFees(page, "Priya Kabir");
 
     await page.getByLabel("Amount").fill("12.345");
     await page.getByLabel("Payment date").fill("2999-01-01");

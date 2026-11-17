@@ -49,7 +49,7 @@ test.describe("Staff search and filter the student list", () => {
     await page.getByLabel("Search").fill(`${currentYear}-0001`);
 
     await expect(studentRows(page)).toHaveCount(1);
-    await expect(studentRows(page)).toContainText("Amara Okafor");
+    await expect(studentRows(page)).toContainText("Alma Tanjin");
   });
 
   test("Combined filters", async ({ page }) => {

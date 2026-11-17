@@ -18,7 +18,7 @@ describe.each(["2026-11-14", "2026-09-03", "2027-02-20", "2027-06-30"])("seeded 
     await runSeed(prisma, { today, password: PASSWORD });
     const fees = await feesByName(today);
 
-    expect(fees["Amara Okafor"]).toMatchObject({ outstandingMinor: 0 });
+    expect(fees["Alma Tanjin"]).toMatchObject({ outstandingMinor: 0 });
     expect(fees["Daniel Mensah"]).toMatchObject({ outstandingMinor: 0 });
     expect(fees["Liam Chen"].paidMinor).toBeGreaterThan(0);
     expect(fees["Liam Chen"].outstandingMinor).toBeGreaterThan(0);
@@ -41,7 +41,7 @@ test("the overdue query returns exactly the expected seeded students on 14 Novem
     ["Fatima Hassan", 600_000, "2026-01-15"],
     ["Sofia Rossi", 600_000, "2026-02-01"],
     ["Noah Williams", 600_000, "2026-10-01"],
-    ["Priya Patel", 300_000, "2026-10-01"],
+    ["Priya Kabir", 300_000, "2026-10-01"],
   ]);
   expect(overdue[0]).toMatchObject({ status: "WITHDRAWN", programmeName: "BSc (Hons) Computer Science" });
 });

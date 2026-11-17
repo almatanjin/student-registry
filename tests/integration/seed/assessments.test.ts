@@ -22,7 +22,7 @@ test("the past-deadline lab report has on-time, late, and missing submissions", 
   const { view, states } = await rosterOf("Lab report 1");
 
   expect(new Date(view.deadline).getTime()).toBeLessThan(Date.parse(`${TODAY}T00:00:00Z`));
-  expect(states).toMatchObject({ "Amara Okafor": "on-time", "Liam Chen": "late", "Priya Patel": "missing" });
+  expect(states).toMatchObject({ "Alma Tanjin": "on-time", "Liam Chen": "late", "Priya Kabir": "missing" });
 });
 
 test("an open assessment whose deadline has passed is available for late submissions", async () => {

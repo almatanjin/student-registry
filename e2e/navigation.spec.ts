@@ -73,7 +73,7 @@ test.describe("The current page is marked", () => {
 
   test("Page inside a section", async ({ page }) => {
     await page.goto("/staff/students");
-    await page.getByRole("link", { name: "Amara Okafor" }).click();
+    await page.getByRole("link", { name: "Alma Tanjin" }).click();
     await page.getByRole("link", { name: "Fees and payments" }).click();
     await expect(page).toHaveURL(/\/fees$/);
 
