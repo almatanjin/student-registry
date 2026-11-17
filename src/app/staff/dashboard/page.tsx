@@ -42,7 +42,6 @@ export default async function StaffDashboardPage() {
           detail={summary.overdue.count > 0 ? `${money(totalOverdue)} overdue` : "Everyone is up to date"}
           icon={ClockAlert}
           colour="yellow"
-          href="#overdue-balances"
         />
         <StatTile
           label="Fees collected"
