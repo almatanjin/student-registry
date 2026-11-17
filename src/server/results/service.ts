@@ -272,14 +272,6 @@ export async function getModuleResults(moduleId: string): Promise<ModuleResultsV
   };
 }
 
-/** Modules with their programme, for the results overview. */
-export function listModulesWithProgramme() {
-  return prisma.module.findMany({
-    orderBy: [{ programme: { name: "asc" } }, { code: "asc" }],
-    select: { id: true, code: true, title: true, programme: { select: { name: true } }, _count: { select: { assessments: true } } },
-  });
-}
-
 export type ModuleResultSummary = {
   id: string;
   code: string;

@@ -26,9 +26,10 @@ export function StatusBadge({ status }: { status: EnrolmentStatus }) {
 }
 
 /** Small rounded label used for every status-like badge, so they all look the same. */
-export function Pill({ tone, className, children }: { tone: Tone; className?: string; children: React.ReactNode }) {
+export function Pill({ tone, className, children, ...props }: React.ComponentProps<"span"> & { tone: Tone }) {
   return (
     <span
+      {...props}
       className={cn(
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset",
         TONES[tone],

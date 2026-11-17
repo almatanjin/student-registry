@@ -36,14 +36,14 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
-      testIgnore: /(journey|password-change|sidebar-new-student|student-assessment-cards)\.spec\.ts$/,
+      testIgnore: /(journey|password-change|results-overview|sidebar-new-student|student-assessment-cards)\.spec\.ts$/,
     },
-    // Creates students and changes passwords, so it runs after the tests that expect only the seeded data.
+    // Creates students, changes passwords, and publishes DS502 results, so it runs after the tests that expect only the seeded data.
     {
       name: "accounts",
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["chromium"],
-      testMatch: /(password-change|sidebar-new-student|student-assessment-cards)\.spec\.ts$/,
+      testMatch: /(password-change|results-overview|sidebar-new-student|student-assessment-cards)\.spec\.ts$/,
     },
     // The full journey adds data of its own, so it runs after every other test.
     {
