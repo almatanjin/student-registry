@@ -1,7 +1,7 @@
-import { missingGrades } from "@/domain/results";
 import type { EnrolmentStatus } from "@/domain/schemas/student";
 import { prisma } from "@/server/db";
 import type { OverdueStudent } from "@/server/fees/overdue";
+import { listModuleResultSummaries } from "@/server/results/service";
 
 export type DashboardSummary = {
   /** Enrolled students, and the other statuses that have at least one student. */
@@ -46,33 +46,8 @@ export async function getDashboardSummary(overdue: OverdueStudent[]): Promise<Da
   };
 }
 
-/**
- * Counts each student and module whose result is Pending (or has no row yet) and has a grade for
- * every assessment in the module, using the same completeness rule as publishing.
- */
+/** Pending and complete module results across every module, counted the same way as the results overview cards. */
 async function countResultsToPublish(): Promise<number> {
-  const [modules, students, grades, results] = await Promise.all([
-    prisma.module.findMany({ select: { id: true, programmeId: true, assessments: { select: { id: true, title: true } } } }),
-    prisma.student.findMany({ select: { id: true, programmeId: true } }),
-    prisma.grade.findMany({ select: { studentId: true, assessmentId: true } }),
-    prisma.moduleResult.findMany({ select: { studentId: true, moduleId: true, state: true } }),
-  ]);
-  const gradedBy = new Map<string, Set<string>>();
-  for (const grade of grades) {
-    const set = gradedBy.get(grade.studentId) ?? new Set<string>();
-    set.add(grade.assessmentId);
-    gradedBy.set(grade.studentId, set);
-  }
-  const stateOf = new Map(results.map((result) => [`${result.studentId}:${result.moduleId}`, result.state]));
-
-  let count = 0;
-  for (const module_ of modules) {
-    for (const student of students) {
-      if (student.programmeId !== module_.programmeId) continue;
-      if ((stateOf.get(`${student.id}:${module_.id}`) ?? "PENDING") !== "PENDING") continue;
-      const missing = missingGrades(module_.assessments, gradedBy.get(student.id) ?? new Set());
-      if (missing !== null && missing.length === 0) count += 1;
-    }
-  }
-  return count;
+  const summaries = await listModuleResultSummaries();
+  return summaries.reduce((sum, summary) => sum + summary.counts.ready, 0);
 }

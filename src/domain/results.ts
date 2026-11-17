@@ -34,3 +34,27 @@ export function missingGrades(assessments: { id: string; title: string }[], grad
   if (assessments.length === 0) return null;
   return assessments.filter((assessment) => !graded.has(assessment.id)).map((assessment) => assessment.title);
 }
+
+/** How a module's students' results stand, as counted for the staff results overview. */
+export type ModuleResultCounts = {
+  /** Students on the module's programme. */
+  students: number;
+  /** Pending and complete, so "Publish all" would publish them. */
+  ready: number;
+  /** Pending and still missing at least one grade. */
+  waiting: number;
+  withheld: number;
+  published: number;
+};
+
+export type ModuleResultStatus = { label: string; tone: "neutral" | "blue" | "purple" | "green" };
+
+/** The one pill a module's results card shows: the first rule that applies, in the order below. */
+export function moduleResultStatus(assessmentCount: number, counts: ModuleResultCounts): ModuleResultStatus {
+  if (assessmentCount === 0) return { label: "No assessments yet", tone: "neutral" };
+  if (counts.students === 0) return { label: "No students yet", tone: "neutral" };
+  if (counts.ready > 0) return { label: `${counts.ready} ready to publish`, tone: "blue" };
+  if (counts.waiting > 0) return { label: "Waiting for grades", tone: "neutral" };
+  if (counts.withheld > 0) return { label: `${counts.withheld} withheld`, tone: "purple" };
+  return { label: "All published", tone: "green" };
+}

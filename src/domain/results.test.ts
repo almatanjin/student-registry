@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { classify, missingGrades, parseGrade } from "./results";
+import { classify, missingGrades, moduleResultStatus, parseGrade, type ModuleResultCounts } from "./results";
 
 describe("classify", () => {
   test("Classification boundaries", () => {
@@ -49,5 +49,48 @@ describe("missingGrades", () => {
 
   test("a module with no assessments has nothing to publish", () => {
     expect(missingGrades([], new Set())).toBeNull();
+  });
+});
+
+describe("moduleResultStatus", () => {
+  const counts = (overrides: Partial<ModuleResultCounts> = {}): ModuleResultCounts => ({
+    students: 4,
+    ready: 0,
+    waiting: 0,
+    withheld: 0,
+    published: 0,
+    ...overrides,
+  });
+
+  test("Module without assessments", () => {
+    expect(moduleResultStatus(0, counts({ students: 0 }))).toEqual({ label: "No assessments yet", tone: "neutral" });
+    expect(moduleResultStatus(0, counts({ waiting: 4 }))).toEqual({ label: "No assessments yet", tone: "neutral" });
+  });
+
+  test("Programme without students", () => {
+    expect(moduleResultStatus(2, counts({ students: 0 }))).toEqual({ label: "No students yet", tone: "neutral" });
+  });
+
+  test("Results ready to publish", () => {
+    expect(moduleResultStatus(2, counts({ ready: 2, waiting: 1, withheld: 1 }))).toEqual({
+      label: "2 ready to publish",
+      tone: "blue",
+    });
+    expect(moduleResultStatus(1, counts({ ready: 1, published: 3 }))).toEqual({ label: "1 ready to publish", tone: "blue" });
+  });
+
+  test("Only incomplete results left", () => {
+    expect(moduleResultStatus(2, counts({ waiting: 2, withheld: 1, published: 1 }))).toEqual({
+      label: "Waiting for grades",
+      tone: "neutral",
+    });
+  });
+
+  test("Nothing left except withheld results", () => {
+    expect(moduleResultStatus(2, counts({ withheld: 1, published: 3 }))).toEqual({ label: "1 withheld", tone: "purple" });
+  });
+
+  test("Everything published", () => {
+    expect(moduleResultStatus(2, counts({ published: 4 }))).toEqual({ label: "All published", tone: "green" });
   });
 });

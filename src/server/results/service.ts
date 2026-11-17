@@ -3,6 +3,7 @@ import {
   classify,
   missingGrades,
   parseGrade,
+  type ModuleResultCounts,
   RESULT_STATES,
   type Classification,
   type ResultState,
@@ -276,5 +277,70 @@ export function listModulesWithProgramme() {
   return prisma.module.findMany({
     orderBy: [{ programme: { name: "asc" } }, { code: "asc" }],
     select: { id: true, code: true, title: true, programme: { select: { name: true } }, _count: { select: { assessments: true } } },
+  });
+}
+
+export type ModuleResultSummary = {
+  id: string;
+  code: string;
+  title: string;
+  programmeName: string;
+  assessmentCount: number;
+  counts: ModuleResultCounts;
+};
+
+/**
+ * Every module, ordered by programme name then code, with how its students' results stand.
+ * A Pending result (or no result row yet) is ready when it has a grade for every assessment, as
+ * publishing requires, and waiting when a grade is missing. The dashboard's "Results to publish" figure is built on this.
+ */
+export async function listModuleResultSummaries(): Promise<ModuleResultSummary[]> {
+  const [modules, students, grades, results] = await Promise.all([
+    prisma.module.findMany({
+      orderBy: [{ programme: { name: "asc" } }, { code: "asc" }],
+      select: {
+        id: true,
+        code: true,
+        title: true,
+        programmeId: true,
+        programme: { select: { name: true } },
+        assessments: { select: { id: true, title: true } },
+      },
+    }),
+    prisma.student.findMany({ select: { id: true, programmeId: true } }),
+    prisma.grade.findMany({ select: { studentId: true, assessmentId: true } }),
+    prisma.moduleResult.findMany({ select: { studentId: true, moduleId: true, state: true } }),
+  ]);
+  const gradedBy = new Map<string, Set<string>>();
+  for (const grade of grades) {
+    const set = gradedBy.get(grade.studentId) ?? new Set<string>();
+    set.add(grade.assessmentId);
+    gradedBy.set(grade.studentId, set);
+  }
+  const stateOf = new Map(results.map((result) => [`${result.studentId}:${result.moduleId}`, result.state]));
+
+  return modules.map((module_) => {
+    const counts: ModuleResultCounts = { students: 0, ready: 0, waiting: 0, withheld: 0, published: 0 };
+    for (const student of students) {
+      if (student.programmeId !== module_.programmeId) continue;
+      counts.students += 1;
+      const state = stateOf.get(`${student.id}:${module_.id}`) ?? "PENDING";
+      if (state === "PUBLISHED") counts.published += 1;
+      else if (state === "WITHHELD") counts.withheld += 1;
+      else {
+        // null when the module has no assessments: nothing to grade, so neither ready nor waiting.
+        const missing = missingGrades(module_.assessments, gradedBy.get(student.id) ?? new Set());
+        if (missing?.length === 0) counts.ready += 1;
+        else if (missing) counts.waiting += 1;
+      }
+    }
+    return {
+      id: module_.id,
+      code: module_.code,
+      title: module_.title,
+      programmeName: module_.programme.name,
+      assessmentCount: module_.assessments.length,
+      counts,
+    };
   });
 }
