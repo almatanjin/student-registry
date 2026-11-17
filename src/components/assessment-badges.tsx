@@ -7,8 +7,10 @@ const SUBMISSION: Record<SubmissionState, { label: string; tone: Tone }> = {
   missing: { label: "Not submitted", tone: "neutral" },
 };
 
-export function SubmissionBadge({ state }: { state: SubmissionState }) {
-  return <Pill tone={SUBMISSION[state].tone}>{SUBMISSION[state].label}</Pill>;
+/** Pass `deadlinePassed` to show "Not submitted" in red once the deadline has gone by; without it the pill stays grey. */
+export function SubmissionBadge({ state, deadlinePassed = false }: { state: SubmissionState; deadlinePassed?: boolean }) {
+  const tone = state === "missing" && deadlinePassed ? "red" : SUBMISSION[state].tone;
+  return <Pill tone={tone}>{SUBMISSION[state].label}</Pill>;
 }
 
 export function OpenBadge({ isOpen }: { isOpen: boolean }) {

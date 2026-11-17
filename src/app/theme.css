@@ -48,6 +48,33 @@
   --app-tile-purple-icon: #844393;
 
   /*
+   * Student assessment cards, which take these colours in turn down the list.
+   * Each colour has a light card background, an accent for the small details (calendar icon, "View", doodle),
+   * and a badge background and text for the module code.
+   * Accents stay dark enough to read on the light card (at least 4.5:1).
+   */
+  --app-card-yellow: #ffe69a;
+  --app-card-yellow-accent: #7a5a00;
+  --app-card-yellow-badge: #fcc512;
+  --app-card-yellow-badge-text: #3d2d00;
+  --app-card-purple: #e5cfea;
+  --app-card-purple-accent: #6b3478;
+  --app-card-purple-badge: #6b3478;
+  --app-card-purple-badge-text: #ffffff;
+  --app-card-sky: #d2eefa;
+  --app-card-sky-accent: #11678f;
+  --app-card-sky-badge: #11678f;
+  --app-card-sky-badge-text: #ffffff;
+  --app-card-blue: #cfe4f6;
+  --app-card-blue-accent: #01568f;
+  --app-card-blue-badge: #01568f;
+  --app-card-blue-badge-text: #ffffff;
+  --app-card-green: #c6ebd4;
+  --app-card-green-accent: #07672f;
+  --app-card-green-badge: #07672f;
+  --app-card-green-badge-text: #ffffff;
+
+  /*
    * Status pill tones, one per meaning, so every badge with the same meaning matches.
    * Each tone is a light background and a darker text colour from the same PEN logo colour.
    *   green:   done or good       (Enrolled, On time, Paid, Published, Pass)
